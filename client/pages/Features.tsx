@@ -134,28 +134,28 @@ export default function Features() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
               {[
                 {
-                  q: "Can I use StudyTrack on my phone?",
-                  a: "Yes! StudyTrack is fully responsive and works on phones, tablets, and desktops. You can also install it as a PWA for offline access.",
+                  q: "Can I use this on my phone?",
+                  a: "Yes! Fully responsive and works on phones, tablets, and desktops. Track your papers on the go.",
                 },
                 {
-                  q: "How do I import my existing papers?",
-                  a: "You can manually add papers one by one using our quick entry form, or bulk import from a CSV file.",
+                  q: "Which Edexcel Maths papers do you support?",
+                  a: "We support all A Level Edexcel Maths past papers. You can add papers from any year and both Paper 1 and Paper 2.",
                 },
                 {
                   q: "Is my data secure?",
-                  a: "Absolutely. We use industry-standard encryption and comply with GDPR. Your data is never shared with third parties.",
+                  a: "Absolutely. We use industry-standard encryption and comply with GDPR. Your data is never shared.",
                 },
                 {
-                  q: "Can I export my data?",
-                  a: "Yes, you can export all your data in CSV or PDF format anytime. Your data belongs to you.",
+                  q: "Can I export my progress?",
+                  a: "Yes, export all your progress data in CSV or PDF format anytime. Share with tutors if you wish.",
                 },
                 {
                   q: "Do you offer student discounts?",
-                  a: "We offer free accounts for students with a .edu email. No credit card required!",
+                  a: "We offer discounted rates for A Level students. Contact us for current pricing.",
                 },
                 {
-                  q: "What subjects does StudyTrack support?",
-                  a: "StudyTrack works with any subject. You define your own topics and customize the system to fit your needs.",
+                  q: "Can I share my results with my tutor?",
+                  a: "Yes! You can generate shareable reports or grant your tutor view-only access to track your progress.",
                 },
               ].map((item, idx) => (
                 <Card key={idx} className="p-6">
