@@ -71,20 +71,20 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-semibold mb-2">Quick Paper Entry</h3>
               <p className="text-muted-foreground mb-4">
-                Add past papers in seconds. Log marks per question, map to topics, and get instant analysis.
+                Add Edexcel Maths papers in seconds. Log marks per question, organize by topic, instant analysis.
               </p>
               <ul className="space-y-2 text-sm">
                 <li className="flex items-center gap-2">
                   <ChevronRight className="h-4 w-4 text-primary" />
-                  Simple, fast data entry forms
+                  Fast form entry for all question types
                 </li>
                 <li className="flex items-center gap-2">
                   <ChevronRight className="h-4 w-4 text-primary" />
-                  Automatic topic categorization
+                  Pre-categorized Edexcel Maths topics
                 </li>
                 <li className="flex items-center gap-2">
                   <ChevronRight className="h-4 w-4 text-primary" />
-                  Instant score calculation
+                  Instant mark calculation
                 </li>
               </ul>
             </div>
@@ -96,20 +96,20 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-semibold mb-2">Visual Analytics</h3>
               <p className="text-muted-foreground mb-4">
-                See your progress with beautiful charts and breakdowns. Understand patterns at a glance.
+                See your maths performance with beautiful charts. Understand which topics need work.
               </p>
               <ul className="space-y-2 text-sm">
                 <li className="flex items-center gap-2">
                   <ChevronRight className="h-4 w-4 text-success" />
-                  Progress over time charts
+                  Progress tracking over time
                 </li>
                 <li className="flex items-center gap-2">
                   <ChevronRight className="h-4 w-4 text-success" />
-                  Topic breakdown graphs
+                  Topic accuracy breakdowns
                 </li>
                 <li className="flex items-center gap-2">
                   <ChevronRight className="h-4 w-4 text-success" />
-                  Performance trends
+                  Paper-to-paper comparisons
                 </li>
               </ul>
             </div>
@@ -119,22 +119,22 @@ export default function Home() {
               <div className="h-12 w-12 bg-accent/10 rounded-lg flex items-center justify-center mb-4">
                 <Brain className="h-6 w-6 text-accent" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Personalized Feedback</h3>
+              <h3 className="text-xl font-semibold mb-2">Smart Study Guide</h3>
               <p className="text-muted-foreground mb-4">
-                Get AI-powered insights about what to revise and how much time to spend on each topic.
+                Discover exactly which topics to focus on based on your performance patterns.
               </p>
               <ul className="space-y-2 text-sm">
                 <li className="flex items-center gap-2">
                   <ChevronRight className="h-4 w-4 text-accent" />
-                  Smart study recommendations
+                  Personalized revision priorities
                 </li>
                 <li className="flex items-center gap-2">
                   <ChevronRight className="h-4 w-4 text-accent" />
-                  Weakness identification
+                  Identify weak topics quickly
                 </li>
                 <li className="flex items-center gap-2">
                   <ChevronRight className="h-4 w-4 text-accent" />
-                  Custom learning paths
+                  Study time recommendations
                 </li>
               </ul>
             </div>
@@ -144,22 +144,22 @@ export default function Home() {
               <div className="h-12 w-12 bg-warning/10 rounded-lg flex items-center justify-center mb-4">
                 <Target className="h-6 w-6 text-warning" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Topic Deep Dives</h3>
+              <h3 className="text-xl font-semibold mb-2">Maths Topic Analysis</h3>
               <p className="text-muted-foreground mb-4">
-                Understand exactly which topics are costing you marks and get detailed analytics.
+                See exactly how many marks you're losing on Calculus, Algebra, Statistics, and more.
               </p>
               <ul className="space-y-2 text-sm">
                 <li className="flex items-center gap-2">
                   <ChevronRight className="h-4 w-4 text-warning" />
-                  Marks lost per topic
+                  Marks lost per topic breakdown
                 </li>
                 <li className="flex items-center gap-2">
                   <ChevronRight className="h-4 w-4 text-warning" />
-                  Topic accuracy percentage
+                  Question-type accuracy analysis
                 </li>
                 <li className="flex items-center gap-2">
                   <ChevronRight className="h-4 w-4 text-warning" />
-                  Consistency tracking
+                  Difficulty-based performance tracking
                 </li>
               </ul>
             </div>
