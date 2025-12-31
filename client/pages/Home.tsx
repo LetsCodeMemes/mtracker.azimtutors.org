@@ -56,10 +56,10 @@ export default function Home() {
         <div className="container max-w-6xl px-4 md:px-6">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Everything You Need to Succeed
+              Everything You Need to Ace A Level Maths
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Powerful features designed to help you track progress, identify weak areas, and stay motivated.
+              Powerful features designed to help you track progress, identify weak areas, and master every topic.
             </p>
           </div>
 
