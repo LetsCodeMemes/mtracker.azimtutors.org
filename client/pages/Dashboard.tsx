@@ -83,9 +83,9 @@ export default function Dashboard() {
           <div className="container max-w-6xl px-4 md:px-6 py-8">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div>
-                <h1 className="text-3xl md:text-4xl font-bold mb-2">Your Dashboard</h1>
+                <h1 className="text-3xl md:text-4xl font-bold mb-2">Your Maths Progress</h1>
                 <p className="text-muted-foreground">
-                  Welcome back! Here's your study progress at a glance.
+                  Track your A Level Edexcel Maths papers and identify areas to improve.
                 </p>
               </div>
               <Button size="lg" asChild className="gap-2">
