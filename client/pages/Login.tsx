@@ -15,7 +15,7 @@ export default function Login() {
         <Card className="w-full max-w-md p-8">
           <h1 className="text-2xl font-bold mb-2">Welcome Back</h1>
           <p className="text-muted-foreground mb-6">
-            Sign in to your StudyTrack account to continue.
+            Sign in to track your A Level Maths progress.
           </p>
 
           <form className="space-y-4 mb-6">
