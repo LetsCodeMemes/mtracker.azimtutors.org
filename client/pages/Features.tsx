@@ -62,7 +62,7 @@ export default function Features() {
       icon: Smartphone,
       title: "Mobile Optimized",
       description:
-        "Track your progress on any device. Access your maths papers on desktop, tablet, or phone.",
+        "Track your progress on any device. Access your maths papers on desktop, tablet or phone.",
       benefits: ["Responsive design", "Quick access", "Fast loading"],
     },
     {
