@@ -146,7 +146,7 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-semibold mb-2">Maths Topic Analysis</h3>
               <p className="text-muted-foreground mb-4">
-                See exactly how many marks you're losing on Calculus, Algebra, Statistics, and more.
+                See exactly how many marks you're losing on Calculus, Algebra, Statistics and more.
               </p>
               <ul className="space-y-2 text-sm">
                 <li className="flex items-center gap-2">
