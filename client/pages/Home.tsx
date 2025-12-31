@@ -19,16 +19,16 @@ export default function Home() {
       <Header />
 
       {/* Hero Section */}
-      <section className="flex-1 bg-gradient-to-b from-blue-50 to-background dark:from-slate-900 dark:to-background">
+      <section className="flex-1 bg-gradient-to-b from-red-50 to-background dark:from-slate-900 dark:to-background">
         <div className="container max-w-6xl px-4 md:px-6 py-16 md:py-24">
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 mb-6 px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium">
               <Zap className="h-4 w-4" />
-              Smart Exam Tracking for Success
+              Smart A Level Maths Tracking
             </div>
 
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 text-foreground">
-              Master Your Exams with
+              Master A Level Edexcel Maths with
               <span className="text-primary"> Data-Driven Insights</span>
             </h1>
 
@@ -36,7 +36,7 @@ export default function Home() {
               Track your past papers, analyze your weak topics, and get personalized feedback on what to revise next. Build a winning study strategy backed by real data.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 mb-12">
+            <div className="flex flex-col sm:flex-row gap-4">
               <Button size="lg" asChild className="h-12 px-8 text-base">
                 <Link to="/signup">
                   Start Free Today
@@ -46,22 +46,6 @@ export default function Home() {
               <Button size="lg" variant="outline" asChild className="h-12 px-8 text-base">
                 <Link to="/dashboard">See Demo Dashboard</Link>
               </Button>
-            </div>
-
-            {/* Trust indicators */}
-            <div className="flex flex-col sm:flex-row gap-8 pt-8 border-t border-border">
-              <div>
-                <div className="text-2xl font-bold text-primary">500+</div>
-                <p className="text-sm text-muted-foreground">Active Students</p>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-primary">10k+</div>
-                <p className="text-sm text-muted-foreground">Papers Tracked</p>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-primary">Grade A</div>
-                <p className="text-sm text-muted-foreground">Average Improvement</p>
-              </div>
             </div>
           </div>
         </div>
