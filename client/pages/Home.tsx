@@ -173,11 +173,11 @@ export default function Home() {
                   "What Should I Revise Next?"
                 </h3>
                 <p className="text-muted-foreground mb-4 text-lg">
-                  Our algorithm analyzes all your papers to identify your weakest topics and how many marks you're losing in each area. Get a personalized "What to Revise Next" section every time you log a new paper.
+                  Our system analyzes all your Edexcel Maths papers to identify your weakest topics and how many marks you're losing in each area. Get a personalized study priority list every time you log a new paper.
                 </p>
                 <div className="flex items-center gap-2 text-primary font-semibold">
                   <TrendingUp className="h-5 w-5" />
-                  Students using this feature improve by 23% on average
+                  Students see improvement within 3-4 weeks of consistent tracking
                 </div>
               </div>
               <div className="flex-1 flex justify-center">
