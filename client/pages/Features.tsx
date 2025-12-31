@@ -90,10 +90,10 @@ export default function Features() {
         <div className="border-b border-border">
           <div className="container max-w-6xl px-4 md:px-6 py-12 md:py-16">
             <h1 className="text-3xl md:text-4xl font-bold mb-4">
-              Powerful Features for Your Success
+              A Level Maths Tracking Made Easy
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl">
-              Everything you need to track your progress, identify weak areas, and ace your exams.
+              Everything you need to track your Edexcel Maths progress, identify weak areas, and ace your exams.
             </p>
           </div>
         </div>
