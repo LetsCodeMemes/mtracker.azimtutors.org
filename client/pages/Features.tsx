@@ -93,7 +93,7 @@ export default function Features() {
               A Level Maths Tracking Made Easy
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl">
-              Everything you need to track your Edexcel Maths progress, identify weak areas, and ace your exams.
+              Everything you need to track your Edexcel Maths progress, identify weak areas and ace your exams.
             </p>
           </div>
         </div>

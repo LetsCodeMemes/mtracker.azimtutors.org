@@ -59,7 +59,7 @@ export default function Home() {
               Everything You Need to Ace A Level Maths
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Powerful features designed to help you track progress, identify weak areas, and master every topic.
+              Powerful features designed to help you track progress, identify weak areas and master every topic.
             </p>
           </div>
 
