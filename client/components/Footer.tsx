@@ -11,11 +11,14 @@ export function Footer() {
           {/* Brand */}
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-2">
-              <BookOpen className="h-5 w-5 text-primary" />
-              <span className="font-bold text-lg">StudyTrack</span>
+              <img
+                src="https://cdn.builder.io/api/v1/image/assets%2Fb1054737047f425f9516bbb02043979d%2F07d0ac73e1e34cf1a308b90dca923a08?format=webp&width=100"
+                alt="Azim Tutors"
+                className="h-8 w-auto"
+              />
             </div>
             <p className="text-sm text-muted-foreground">
-              Track your progress, identify weak areas, and ace your exams.
+              Master A Level Edexcel Maths with data-driven insights.
             </p>
           </div>
 
