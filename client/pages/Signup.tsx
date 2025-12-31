@@ -16,7 +16,7 @@ export default function Signup() {
         <Card className="w-full max-w-md p-8">
           <h1 className="text-2xl font-bold mb-2">Create Your Account</h1>
           <p className="text-muted-foreground mb-6">
-            Start tracking your past papers and improving your scores today.
+            Start tracking your Edexcel Maths papers and improve your A Level scores.
           </p>
 
           <form className="space-y-4 mb-6">
