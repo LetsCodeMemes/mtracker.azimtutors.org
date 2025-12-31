@@ -63,7 +63,7 @@ export default function Signup() {
               <Label htmlFor="subject">Exam Subject</Label>
               <Input
                 id="subject"
-                placeholder="e.g., Physics, Chemistry, Maths"
+                placeholder="A Level Edexcel Maths"
                 className="mt-2"
               />
             </div>
