@@ -194,10 +194,10 @@ export default function Home() {
       <section className="py-16 md:py-24 bg-primary text-primary-foreground">
         <div className="container max-w-6xl px-4 md:px-6 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            Ready to Transform Your Study Habits?
+            Ready to Master A Level Maths?
           </h2>
           <p className="text-lg opacity-90 mb-8 max-w-2xl mx-auto">
-            Start tracking your past papers today and unlock data-driven study strategies.
+            Start tracking your past papers today and ace your exams with data-driven insights.
             It only takes 2 minutes to get started.
           </p>
           <Button size="lg" variant="secondary" asChild className="h-12 px-8 text-base">
