@@ -45,18 +45,18 @@ export default function Dashboard() {
   ];
 
   const topicBreakdown = [
-    { topic: "Mechanics", marks: 24, marksLost: 6, accuracy: 80 },
-    { topic: "Waves", marks: 18, marksLost: 7, accuracy: 72 },
-    { topic: "Electricity", marks: 15, marksLost: 10, accuracy: 60 },
-    { topic: "Thermodynamics", marks: 12, marksLost: 8, accuracy: 60 },
-    { topic: "Optics", marks: 3, marksLost: 2, accuracy: 60 },
+    { topic: "Algebra", marks: 32, marksLost: 8, accuracy: 80 },
+    { topic: "Calculus", marks: 28, marksLost: 12, accuracy: 70 },
+    { topic: "Statistics", marks: 20, marksLost: 10, accuracy: 67 },
+    { topic: "Geometry", marks: 15, marksLost: 5, accuracy: 75 },
+    { topic: "Trigonometry", marks: 5, marksLost: 3, accuracy: 63 },
   ];
 
   const topicAccuracyData = [
-    { name: "Mechanics", value: 80, color: "#059669" },
-    { name: "Waves", value: 72, color: "#3b82f6" },
-    { name: "Electricity", value: 60, color: "#f97316" },
-    { name: "Thermodynamics", value: 60, color: "#ec4899" },
+    { name: "Algebra", value: 80, color: "#DC2626" },
+    { name: "Calculus", value: 70, color: "#991B1B" },
+    { name: "Statistics", value: 67, color: "#F87171" },
+    { name: "Geometry", value: 75, color: "#7F1D1D" },
   ];
 
   const papersData = [
