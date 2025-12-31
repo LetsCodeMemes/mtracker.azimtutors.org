@@ -17,35 +17,35 @@ export default function Features() {
   const features = [
     {
       icon: BookMarked,
-      title: "Fast Paper Entry",
+      title: "Fast Edexcel Paper Entry",
       description:
-        "Add past papers in seconds with our intuitive form. Log marks per question and automatically map to topics.",
+        "Add Edexcel Maths papers in seconds. Log marks per question and organize by topic automatically.",
       benefits: [
-        "Quick data entry",
-        "Automatic topic mapping",
-        "Instant calculations",
+        "Quick form entry",
+        "Pre-categorized Maths topics",
+        "Instant score calculation",
       ],
     },
     {
       icon: BarChart3,
-      title: "Beautiful Analytics",
+      title: "Maths Performance Analytics",
       description:
-        "Visualize your progress with professional charts and graphs. Understand your performance at a glance.",
-      benefits: ["Progress charts", "Topic breakdown", "Trend analysis"],
+        "Visualize your maths progress with professional charts. See which topics need the most work.",
+      benefits: ["Progress tracking", "Topic accuracy charts", "Paper comparisons"],
     },
     {
       icon: Brain,
-      title: "AI-Powered Insights",
+      title: "Smart Study Guide",
       description:
-        "Get intelligent recommendations on what to study next based on your weak areas and past performance.",
-      benefits: ["Smart recommendations", "Personalized feedback", "Study plans"],
+        "Get personalized study priorities based on your performance patterns across all papers.",
+      benefits: ["Revision priorities", "Weak topic identification", "Study recommendations"],
     },
     {
       icon: Target,
       title: "Detailed Topic Analysis",
       description:
-        "Deep dive into each topic to see exactly where you're losing marks and how to improve.",
-      benefits: ["Marks lost tracking", "Accuracy metrics", "Consistency data"],
+        "Deep dive into Algebra, Calculus, Statistics, Geometry and more. See exactly where marks are lost.",
+      benefits: ["Marks lost tracking", "Question accuracy", "Topic consistency"],
     },
     {
       icon: Shield,
@@ -62,22 +62,22 @@ export default function Features() {
       icon: Smartphone,
       title: "Mobile Optimized",
       description:
-        "Use StudyTrack on any device. Access your data on desktop, tablet, or phone.",
-      benefits: ["Responsive design", "Offline support", "Fast loading"],
+        "Track your progress on any device. Access your maths papers on desktop, tablet, or phone.",
+      benefits: ["Responsive design", "Quick access", "Fast loading"],
     },
     {
       icon: Database,
       title: "Data Export",
       description:
-        "Export your data anytime in multiple formats. Your data belongs to you.",
+        "Export your progress reports anytime in multiple formats. Your data belongs to you.",
       benefits: ["CSV export", "PDF reports", "Data portability"],
     },
     {
       icon: Zap,
-      title: "Collaboration Ready",
+      title: "Tutor Integration",
       description:
-        "Share your progress with tutors or study groups. Get feedback and guidance.",
-      benefits: ["Share insights", "Tutor feedback", "Group studies"],
+        "Share your progress with your tutor. Get personalized guidance based on your data.",
+      benefits: ["Share insights", "Tutor feedback", "Collaborative learning"],
     },
   ];
 
