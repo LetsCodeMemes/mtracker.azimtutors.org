@@ -10,9 +10,12 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full bg-background border-b border-border">
       <div className="container max-w-6xl h-16 flex items-center justify-between px-4 md:px-6">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 font-bold text-lg text-primary hover:opacity-80 transition-opacity">
-          <BookOpen className="h-6 w-6" />
-          <span className="hidden sm:inline">StudyTrack</span>
+        <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity h-10">
+          <img
+            src="https://cdn.builder.io/api/v1/image/assets%2Fb1054737047f425f9516bbb02043979d%2F07d0ac73e1e34cf1a308b90dca923a08?format=webp&width=200"
+            alt="Azim Tutors"
+            className="h-10 w-auto"
+          />
         </Link>
 
         {/* Desktop Navigation */}
