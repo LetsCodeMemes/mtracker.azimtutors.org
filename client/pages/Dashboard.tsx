@@ -60,17 +60,17 @@ export default function Dashboard() {
   ];
 
   const papersData = [
-    { id: 1, name: "Physics Paper 1 (2023)", date: "Dec 15", score: 75, total: 100 },
-    { id: 2, name: "Physics Paper 2 (2022)", date: "Dec 10", score: 68, total: 100 },
-    { id: 3, name: "Physics Paper 1 (2022)", date: "Dec 5", score: 70, total: 100 },
-    { id: 4, name: "Physics Paper 2 (2021)", date: "Nov 28", score: 65, total: 100 },
-    { id: 5, name: "Physics Paper 1 (2021)", date: "Nov 20", score: 68, total: 100 },
+    { id: 1, name: "Edexcel Paper 1 (2024)", date: "Dec 15", score: 75, total: 100 },
+    { id: 2, name: "Edexcel Paper 2 (2024)", date: "Dec 10", score: 68, total: 100 },
+    { id: 3, name: "Edexcel Paper 1 (2023)", date: "Dec 5", score: 70, total: 100 },
+    { id: 4, name: "Edexcel Paper 2 (2023)", date: "Nov 28", score: 65, total: 100 },
+    { id: 5, name: "Edexcel Paper 1 (2023)", date: "Nov 20", score: 68, total: 100 },
   ];
 
   const weakestTopics = [
-    { topic: "Electricity", marksLost: 10, priority: "High" },
-    { topic: "Thermodynamics", marksLost: 8, priority: "High" },
-    { topic: "Waves", marksLost: 7, priority: "Medium" },
+    { topic: "Calculus", marksLost: 12, priority: "High" },
+    { topic: "Statistics", marksLost: 10, priority: "High" },
+    { topic: "Trigonometry", marksLost: 3, priority: "Medium" },
   ];
 
   return (
