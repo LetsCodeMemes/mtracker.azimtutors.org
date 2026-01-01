@@ -96,13 +96,24 @@ export function Header() {
             >
               Home
             </Link>
-            <Link
-              to="/dashboard"
-              className="text-sm font-medium text-foreground hover:text-primary transition-colors py-2"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Dashboard
-            </Link>
+            {user && (
+              <>
+                <Link
+                  to="/dashboard"
+                  className="text-sm font-medium text-foreground hover:text-primary transition-colors py-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  to="/add-paper"
+                  className="text-sm font-medium text-foreground hover:text-primary transition-colors py-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Add Paper
+                </Link>
+              </>
+            )}
             <Link
               to="/features"
               className="text-sm font-medium text-foreground hover:text-primary transition-colors py-2"
