@@ -43,6 +43,9 @@ export function Header() {
               <Link to="/simulator" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
                 Grade Simulator
               </Link>
+              <Link to="/revision-plan" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+                Revision Plan
+              </Link>
             </>
           )}
           <Link to="/features" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
@@ -121,6 +124,13 @@ export function Header() {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Grade Simulator
+                </Link>
+                <Link
+                  to="/revision-plan"
+                  className="text-sm font-medium text-foreground hover:text-primary transition-colors py-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Revision Plan
                 </Link>
               </>
             )}
