@@ -104,16 +104,34 @@ export function Header() {
               Features
             </Link>
             <div className="border-t border-border pt-3 mt-2 flex flex-col gap-2">
-              <Button variant="outline" className="w-full" asChild>
-                <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
-                  Login
-                </Link>
-              </Button>
-              <Button className="w-full" asChild>
-                <Link to="/signup" onClick={() => setMobileMenuOpen(false)}>
-                  Sign Up
-                </Link>
-              </Button>
+              {user ? (
+                <>
+                  <p className="text-sm text-muted-foreground py-2">
+                    {user.first_name} {user.last_name}
+                  </p>
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={handleLogout}
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Logout
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="outline" className="w-full" asChild>
+                    <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
+                      Login
+                    </Link>
+                  </Button>
+                  <Button className="w-full" asChild>
+                    <Link to="/signup" onClick={() => setMobileMenuOpen(false)}>
+                      Sign Up
+                    </Link>
+                  </Button>
+                </>
+              )}
             </div>
           </nav>
         </div>
