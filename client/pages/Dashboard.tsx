@@ -3,6 +3,7 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 import {
   AreaChart,
   Area,
@@ -17,8 +18,6 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-  LineChart,
-  Line,
 } from "recharts";
 import {
   Plus,
@@ -27,15 +26,118 @@ import {
   Target,
   AlertCircle,
   ArrowUpRight,
-  ArrowDownRight,
   Clock,
+  Loader,
 } from "lucide-react";
 
+interface PerformanceStats {
+  overallScore: number;
+  paperCount: number;
+  topics: Array<{
+    topic: string;
+    accuracy: number;
+    marks_obtained: number;
+    marks_available: number;
+  }>;
+  questionTypeWeakness: Array<{
+    question_type: string;
+    marks_lost: number;
+    accuracy: number;
+  }>;
+}
+
+interface UserPaper {
+  id: number;
+  exam_board: string;
+  year: number;
+  paper_number: number;
+  marks_obtained: number;
+  total_marks: number;
+  submission_date: string;
+  percentage: number;
+}
+
 export default function Dashboard() {
-  // Sample data - in a real app, this would come from a database
-  const overallScore = 72;
-  const paperCount = 5;
-  const improvementTrend = 8;
+  const [stats, setStats] = useState<PerformanceStats | null>(null);
+  const [papers, setPapers] = useState<UserPaper[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      const token = localStorage.getItem("auth-storage")
+        ? JSON.parse(localStorage.getItem("auth-storage") || "{}").state?.token
+        : null;
+
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+      const [statsRes, papersRes] = await Promise.all([
+        fetch("/api/performance/stats", { headers }),
+        fetch("/api/performance/papers", { headers }),
+      ]);
+
+      if (!statsRes.ok || !papersRes.ok) {
+        throw new Error("Failed to fetch data");
+      }
+
+      const statsData = await statsRes.json();
+      const papersData = await papersRes.json();
+
+      setStats(statsData);
+      setPapers(papersData);
+    } catch (err) {
+      setError("Failed to load dashboard data");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col bg-background">
+        <Header />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <Loader className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
+            <p className="text-muted-foreground">Loading your dashboard...</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error || !stats) {
+    return (
+      <div className="min-h-screen flex flex-col bg-background">
+        <Header />
+        <main className="flex-1 flex items-center justify-center px-4">
+          <Card className="p-6 max-w-md">
+            <div className="text-center">
+              <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
+              <h2 className="text-lg font-semibold mb-2">Unable to Load Dashboard</h2>
+              <p className="text-muted-foreground mb-4">
+                {error || "We couldn't load your performance data. Please try again."}
+              </p>
+              <Button onClick={fetchDashboardData}>Retry</Button>
+            </div>
+          </Card>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Calculate additional metrics
+  const improvementTrend = 8; // This could be calculated from progress data
+  const topicCount = stats.topics.length;
+  const overallScore = stats.overallScore;
+  const paperCount = stats.paperCount;
 
   const progressData = [
     { month: "Sept", score: 65 },
