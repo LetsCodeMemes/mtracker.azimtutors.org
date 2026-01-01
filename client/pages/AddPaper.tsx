@@ -5,14 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState, useEffect } from "react";
-import { ChevronDown, AlertCircle, CheckCircle } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { AlertCircle, CheckCircle } from "lucide-react";
 
 interface ExamQuestion {
   id: number;
