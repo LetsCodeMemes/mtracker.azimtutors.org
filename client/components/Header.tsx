@@ -42,12 +42,26 @@ export function Header() {
 
         {/* Desktop Auth Buttons */}
         <div className="hidden md:flex items-center gap-3">
-          <Button variant="ghost" asChild>
-            <Link to="/login">Login</Link>
-          </Button>
-          <Button asChild>
-            <Link to="/signup">Sign Up</Link>
-          </Button>
+          {user ? (
+            <>
+              <span className="text-sm text-muted-foreground">
+                {user.first_name} {user.last_name}
+              </span>
+              <Button variant="ghost" size="sm" onClick={handleLogout}>
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="ghost" asChild>
+                <Link to="/login">Login</Link>
+              </Button>
+              <Button asChild>
+                <Link to="/signup">Sign Up</Link>
+              </Button>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Toggle */}
