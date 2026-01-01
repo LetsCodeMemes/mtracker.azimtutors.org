@@ -4,6 +4,7 @@ import cors from "cors";
 import { handleDemo } from "./routes/demo";
 import { authRouter } from "./routes/auth";
 import { papersRouter } from "./routes/papers";
+import { performanceRouter } from "./routes/performance";
 import { initializeDatabase } from "./db";
 
 export function createServer() {
@@ -33,6 +34,9 @@ export function createServer() {
 
   // Papers and exam data routes
   app.use("/api/papers", papersRouter);
+
+  // Performance and analytics routes
+  app.use("/api/performance", performanceRouter);
 
   return app;
 }
