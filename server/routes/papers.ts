@@ -4,6 +4,8 @@ import { pool } from "../db";
 import { z } from "zod";
 import { authMiddleware, AuthRequest } from "../middleware";
 
+const router = Router();
+
 /**
  * Get all available papers (with caching logic)
  */
