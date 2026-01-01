@@ -139,41 +139,33 @@ export default function Dashboard() {
   const overallScore = stats.overallScore;
   const paperCount = stats.paperCount;
 
+  // Prepare data for charts
   const progressData = [
-    { month: "Sept", score: 65 },
-    { month: "Oct", score: 68 },
-    { month: "Nov", score: 70 },
-    { month: "Dec", score: 72 },
+    { month: "Progress", score: overallScore },
   ];
 
-  const topicBreakdown = [
-    { topic: "Algebra", marks: 32, marksLost: 8, accuracy: 80 },
-    { topic: "Calculus", marks: 28, marksLost: 12, accuracy: 70 },
-    { topic: "Statistics", marks: 20, marksLost: 10, accuracy: 67 },
-    { topic: "Geometry", marks: 15, marksLost: 5, accuracy: 75 },
-    { topic: "Trigonometry", marks: 5, marksLost: 3, accuracy: 63 },
-  ];
+  const topicAccuracyData = stats.topics
+    .slice(0, 4)
+    .map((topic, idx) => ({
+      name: topic.topic,
+      value: topic.accuracy,
+      color: ["#DC2626", "#991B1B", "#F87171", "#7F1D1D"][idx],
+    }));
 
-  const topicAccuracyData = [
-    { name: "Algebra", value: 80, color: "#DC2626" },
-    { name: "Calculus", value: 70, color: "#991B1B" },
-    { name: "Statistics", value: 67, color: "#F87171" },
-    { name: "Geometry", value: 75, color: "#7F1D1D" },
-  ];
+  const topicBreakdown = stats.topics.map((topic) => ({
+    topic: topic.topic,
+    marks: topic.marks_obtained,
+    marksLost: topic.marks_available - topic.marks_obtained,
+    accuracy: topic.accuracy,
+  }));
 
-  const papersData = [
-    { id: 1, name: "Edexcel Paper 1 (2024)", date: "Dec 15", score: 75, total: 100 },
-    { id: 2, name: "Edexcel Paper 2 (2024)", date: "Dec 10", score: 68, total: 100 },
-    { id: 3, name: "Edexcel Paper 1 (2023)", date: "Dec 5", score: 70, total: 100 },
-    { id: 4, name: "Edexcel Paper 2 (2023)", date: "Nov 28", score: 65, total: 100 },
-    { id: 5, name: "Edexcel Paper 1 (2023)", date: "Nov 20", score: 68, total: 100 },
-  ];
-
-  const weakestTopics = [
-    { topic: "Calculus", marksLost: 12, priority: "High" },
-    { topic: "Statistics", marksLost: 10, priority: "High" },
-    { topic: "Trigonometry", marksLost: 3, priority: "Medium" },
-  ];
+  const weakestTopics = stats.questionTypeWeakness
+    .slice(0, 3)
+    .map((weakness) => ({
+      topic: weakness.question_type,
+      marksLost: weakness.marks_lost,
+      priority: weakness.marks_lost > 5 ? "High" : "Medium",
+    }));
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
