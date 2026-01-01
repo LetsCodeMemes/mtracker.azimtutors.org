@@ -11,6 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Features from "./pages/Features";
+import AddPaper from "./pages/AddPaper";
 import { Placeholder } from "./pages/Placeholder";
 import NotFound from "./pages/NotFound";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -36,12 +37,12 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/features" element={<Features />} />
-          {/* Placeholder routes for incomplete pages */}
+          {/* Protected routes */}
           <Route
             path="/add-paper"
             element={
               <ProtectedRoute>
-                <Placeholder title="Add Past Paper" description="Create and track your past paper submissions here." />
+                <AddPaper />
               </ProtectedRoute>
             }
           />
