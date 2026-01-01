@@ -233,11 +233,11 @@ export default function Dashboard() {
                   <TrendingUp className="h-5 w-5 text-accent" />
                 </div>
                 <div className="flex items-center gap-1 text-foreground text-sm font-medium">
-                  5
+                  {topicCount}
                 </div>
               </div>
               <p className="text-sm text-muted-foreground mb-1">Topics Covered</p>
-              <p className="text-3xl font-bold">5</p>
+              <p className="text-3xl font-bold">{topicCount}</p>
               <p className="text-xs text-muted-foreground mt-2">Unique topics</p>
             </Card>
 
