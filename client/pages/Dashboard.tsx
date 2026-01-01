@@ -183,7 +183,7 @@ export default function Dashboard() {
                 </p>
               </div>
               <Button size="lg" asChild className="gap-2">
-                <Link to="#add-paper">
+                <Link to="/add-paper">
                   <Plus className="h-4 w-4" />
                   Add Past Paper
                 </Link>
