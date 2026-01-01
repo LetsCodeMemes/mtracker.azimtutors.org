@@ -10,7 +10,7 @@ router.use(authMiddleware);
 /**
  * Get user's overall performance statistics
  */
-router.get("/stats", async (req: AuthRequest, res: Response) => {
+router.get("/stats", async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     if (!req.user) {
       return res.status(401).json({ error: "Unauthorized" });
