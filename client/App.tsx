@@ -12,6 +12,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Features from "./pages/Features";
 import AddPaper from "./pages/AddPaper";
+import GradeSimulator from "./pages/GradeSimulator";
 import { Placeholder } from "./pages/Placeholder";
 import NotFound from "./pages/NotFound";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -43,6 +44,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <AddPaper />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/simulator"
+            element={
+              <ProtectedRoute>
+                <GradeSimulator />
               </ProtectedRoute>
             }
           />
