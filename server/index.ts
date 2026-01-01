@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import { handleDemo } from "./routes/demo";
 import { authRouter } from "./routes/auth";
+import { papersRouter } from "./routes/papers";
 import { initializeDatabase } from "./db";
 
 export function createServer() {
@@ -29,6 +30,9 @@ export function createServer() {
 
   // Authentication routes
   app.use("/api/auth", authRouter);
+
+  // Papers and exam data routes
+  app.use("/api/papers", papersRouter);
 
   return app;
 }
