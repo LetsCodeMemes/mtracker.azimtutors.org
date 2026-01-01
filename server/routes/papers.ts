@@ -2,12 +2,7 @@ import { Router, Request, Response } from "express";
 import { getExamQuestions, getAvailableTopics } from "../data/exam-mappings";
 import { pool } from "../db";
 import { z } from "zod";
-
-const router = Router();
-
-interface AuthRequest extends Request {
-  user?: { id: number; email: string };
-}
+import { authMiddleware, AuthRequest } from "../middleware";
 
 /**
  * Get all available papers (with caching logic)
@@ -67,6 +62,7 @@ const SubmitPaperSchema = z.object({
 
 router.post(
   "/:paperId/submit",
+  authMiddleware,
   async (req: AuthRequest, res: Response) => {
     try {
       // Note: In production, verify the JWT token from headers

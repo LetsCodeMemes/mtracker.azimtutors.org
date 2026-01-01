@@ -1,11 +1,11 @@
-import { Router, Request, Response } from "express";
+import { Router, Response } from "express";
 import { pool } from "../db";
+import { authMiddleware, AuthRequest } from "../middleware";
 
 const router = Router();
 
-interface AuthRequest extends Request {
-  user?: { id: number; email: string };
-}
+// Protect all performance routes with auth middleware
+router.use(authMiddleware);
 
 /**
  * Get user's overall performance statistics
