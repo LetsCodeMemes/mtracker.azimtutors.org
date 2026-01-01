@@ -15,6 +15,7 @@ import AddPaper from "./pages/AddPaper";
 import GradeSimulator from "./pages/GradeSimulator";
 import RevisionPlan from "./pages/RevisionPlan";
 import ExaminerInsights from "./pages/ExaminerInsights";
+import ProgressReport from "./pages/ProgressReport";
 import { Placeholder } from "./pages/Placeholder";
 import NotFound from "./pages/NotFound";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -70,6 +71,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <ExaminerInsights />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/progress-report"
+            element={
+              <ProtectedRoute>
+                <ProgressReport />
               </ProtectedRoute>
             }
           />
