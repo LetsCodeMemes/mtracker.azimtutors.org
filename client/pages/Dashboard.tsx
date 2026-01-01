@@ -28,7 +28,9 @@ import {
   ArrowUpRight,
   Clock,
   Loader,
+  Sparkles,
 } from "lucide-react";
+import { PremiumUpgradeCard } from "@/components/PremiumUpgradeCard";
 
 interface PerformanceStats {
   overallScore: number;
@@ -404,6 +406,44 @@ export default function Dashboard() {
               </div>
             </div>
           </Card>
+
+          {/* AI Features Placeholder */}
+          <div className="mb-8">
+            <h2 className="text-lg font-semibold mb-4">Coming Soon</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Card className="p-6 border-primary/20 bg-primary/5">
+                <div className="flex items-start gap-4">
+                  <div className="h-10 w-10 bg-primary/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Sparkles className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-foreground mb-1">
+                      AI Topic Explanations
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      Get instant AI-powered explanations for any topic
+                    </p>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="p-6 border-primary/20 bg-primary/5">
+                <div className="flex items-start gap-4">
+                  <div className="h-10 w-10 bg-primary/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Sparkles className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-foreground mb-1">
+                      Adaptive Learning Path
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      AI will customize your study plan based on your progress
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            </div>
+          </div>
 
           {/* Recent Papers */}
           <Card className="p-6">
