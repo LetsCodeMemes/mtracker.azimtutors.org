@@ -32,9 +32,16 @@ export function Header() {
           <Link to="/" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
             Home
           </Link>
-          <Link to="/dashboard" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
-            Dashboard
-          </Link>
+          {user && (
+            <>
+              <Link to="/dashboard" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+                Dashboard
+              </Link>
+              <Link to="/add-paper" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+                Add Paper
+              </Link>
+            </>
+          )}
           <Link to="/features" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
             Features
           </Link>
