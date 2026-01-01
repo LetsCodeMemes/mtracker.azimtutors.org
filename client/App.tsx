@@ -14,6 +14,7 @@ import Features from "./pages/Features";
 import AddPaper from "./pages/AddPaper";
 import GradeSimulator from "./pages/GradeSimulator";
 import RevisionPlan from "./pages/RevisionPlan";
+import ExaminerInsights from "./pages/ExaminerInsights";
 import { Placeholder } from "./pages/Placeholder";
 import NotFound from "./pages/NotFound";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -61,6 +62,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <RevisionPlan />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/examiner-insights"
+            element={
+              <ProtectedRoute>
+                <ExaminerInsights />
               </ProtectedRoute>
             }
           />
