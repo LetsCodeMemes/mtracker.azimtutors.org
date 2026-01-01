@@ -408,30 +408,47 @@ export default function Dashboard() {
           {/* Recent Papers */}
           <Card className="p-6">
             <h2 className="text-lg font-semibold mb-6">Recent Papers</h2>
-            <div className="space-y-4">
-              {papersData.map((paper) => (
-                <div
-                  key={paper.id}
-                  className="flex flex-col md:flex-row md:items-center justify-between p-4 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors"
-                >
-                  <div>
-                    <p className="font-semibold text-foreground">{paper.name}</p>
-                    <p className="text-sm text-muted-foreground">{paper.date}</p>
-                  </div>
-                  <div className="mt-3 md:mt-0 flex items-center gap-4">
-                    <div className="text-right">
-                      <div className="text-2xl font-bold text-primary">
-                        {paper.score}
-                        <span className="text-sm text-muted-foreground ml-1">/ {paper.total}</span>
+            {papers.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground mb-4">
+                  No papers submitted yet. Start by adding a past paper.
+                </p>
+                <Button asChild>
+                  <Link to="/add-paper">Add Your First Paper</Link>
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {papers.map((paper) => (
+                  <div
+                    key={paper.id}
+                    className="flex flex-col md:flex-row md:items-center justify-between p-4 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors"
+                  >
+                    <div>
+                      <p className="font-semibold text-foreground">
+                        {paper.exam_board} {paper.year} - Paper {paper.paper_number}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {new Date(paper.submission_date).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="mt-3 md:mt-0 flex items-center gap-4">
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-primary">
+                          {paper.marks_obtained}
+                          <span className="text-sm text-muted-foreground ml-1">
+                            / {paper.total_marks}
+                          </span>
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          {paper.percentage}%
+                        </div>
                       </div>
                     </div>
-                    <Button variant="ghost" size="sm">
-                      View Details
-                    </Button>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </Card>
         </div>
       </main>
