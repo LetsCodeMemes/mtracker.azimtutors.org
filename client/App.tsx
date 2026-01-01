@@ -13,6 +13,7 @@ import Signup from "./pages/Signup";
 import Features from "./pages/Features";
 import { Placeholder } from "./pages/Placeholder";
 import NotFound from "./pages/NotFound";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -24,13 +25,34 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/features" element={<Features />} />
           {/* Placeholder routes for incomplete pages */}
-          <Route path="/add-paper" element={<Placeholder title="Add Past Paper" description="Create and track your past paper submissions here." />} />
-          <Route path="/profile" element={<Placeholder title="Profile Settings" description="Customize your account settings and preferences." />} />
+          <Route
+            path="/add-paper"
+            element={
+              <ProtectedRoute>
+                <Placeholder title="Add Past Paper" description="Create and track your past paper submissions here." />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Placeholder title="Profile Settings" description="Customize your account settings and preferences." />
+              </ProtectedRoute>
+            }
+          />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
