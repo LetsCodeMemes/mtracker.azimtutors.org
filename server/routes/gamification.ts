@@ -2,6 +2,7 @@ import { Router, Response } from "express";
 import { pool } from "../db";
 import { authMiddleware, AuthRequest } from "../middleware";
 import { z } from "zod";
+import { EmailNotificationService } from "../lib/email-notifications";
 
 const router = Router();
 
