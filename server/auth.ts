@@ -116,6 +116,9 @@ export async function signupUser(
       [user.id]
     );
 
+    // Create default notification preferences
+    await EmailNotificationService.createDefaultPreferences(user.id);
+
     const token = generateToken(user);
 
     return {
