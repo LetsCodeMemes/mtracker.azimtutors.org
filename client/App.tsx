@@ -19,6 +19,7 @@ import ProgressReport from "./pages/ProgressReport";
 import Onboarding from "./pages/Onboarding";
 import PracticeQuestions from "./pages/PracticeQuestions";
 import Premium from "./pages/Premium";
+import ForgotPassword from "./pages/ForgotPassword";
 import { Placeholder } from "./pages/Placeholder";
 import NotFound from "./pages/NotFound";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -42,6 +43,7 @@ const App = () => (
             }
           />
           <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/features" element={<Features />} />
