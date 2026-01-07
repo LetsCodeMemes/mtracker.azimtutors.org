@@ -16,7 +16,7 @@ import {
   Sparkles,
 } from "lucide-react";
 
-import { aLevelMathsChapters, Chapter } from "@/shared/chapters";
+import { aLevelMathsChapters, Chapter } from "@shared/chapters";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Tabs,
