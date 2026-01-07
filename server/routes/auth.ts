@@ -6,6 +6,7 @@ const router = Router();
 
 const SignupSchema = z.object({
   email: z.string().email(),
+  username: z.string().min(3).max(30).regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores"),
   password: z.string().min(6),
   firstName: z.string().min(1),
   lastName: z.string().min(1),
@@ -23,6 +24,7 @@ router.post("/signup", async (req: Request, res: Response) => {
     const body = SignupSchema.parse(req.body);
     const result = await signupUser(
       body.email,
+      body.username,
       body.password,
       body.firstName,
       body.lastName,
