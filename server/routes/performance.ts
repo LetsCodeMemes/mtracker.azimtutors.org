@@ -33,14 +33,18 @@ router.get("/stats", async (req: AuthRequest, res: Response): Promise<void> => {
       scoreResult.rows[0]?.avg_score || 0;
     const paperCount = scoreResult.rows[0]?.paper_count || 0;
 
-    // Topic performance
+    // Topic performance (accuracy based on attempted questions)
     const topicsResult = await pool.query(
       `SELECT
         eq.topic,
-        COUNT(DISTINCT eq.id) as total_questions,
+        COUNT(DISTINCT eq.id) as total_questions_in_syllabus,
         COALESCE(SUM(qr.marks_obtained), 0) as marks_obtained,
-        COALESCE(SUM(eq.marks_available), 0) as marks_available,
-        ROUND((COALESCE(SUM(qr.marks_obtained), 0)::FLOAT / NULLIF(SUM(eq.marks_available), 0) * 100)::NUMERIC, 1) as accuracy
+        COALESCE(SUM(CASE WHEN qr.id IS NOT NULL THEN eq.marks_available ELSE 0 END), 0) as marks_available,
+        CASE
+          WHEN SUM(CASE WHEN qr.id IS NOT NULL THEN eq.marks_available ELSE 0 END) > 0
+          THEN ROUND((SUM(qr.marks_obtained)::FLOAT / NULLIF(SUM(CASE WHEN qr.id IS NOT NULL THEN eq.marks_available ELSE 0 END), 0) * 100)::NUMERIC, 1)
+          ELSE 0
+        END as accuracy
       FROM exam_questions eq
       LEFT JOIN question_responses qr ON eq.id = qr.question_id
       LEFT JOIN user_papers up ON qr.user_paper_id = up.id AND up.user_id = $1
