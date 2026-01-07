@@ -38,6 +38,7 @@ import {
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { RandomMistake } from "@/components/RandomMistake";
+import { topicToChapter } from "@/shared/chapters";
 
 interface PerformanceStats {
   overallScore: number;
@@ -436,7 +437,14 @@ export default function Dashboard() {
                           key={topic.topic}
                           className="flex items-center justify-between p-2 bg-destructive/5 rounded"
                         >
-                          <span className="text-sm text-foreground">{topic.topic}</span>
+                          <div className="flex flex-col">
+                            <span className="text-sm text-foreground">{topic.topic}</span>
+                            {topicToChapter[topic.topic] && (
+                              <span className="text-[10px] text-muted-foreground uppercase font-bold">
+                                {topicToChapter[topic.topic].replace('_', ' ')}
+                              </span>
+                            )}
+                          </div>
                           <span className="text-sm font-bold text-destructive">
                             {topic.accuracy}%
                           </span>
@@ -555,14 +563,21 @@ export default function Dashboard() {
                   className="p-4 bg-card rounded-lg border border-border hover:border-primary transition-colors"
                 >
                   <div className="flex items-start justify-between mb-2">
-                    <p className="font-semibold text-foreground text-sm">{topic.topic}</p>
+                    <div className="flex flex-col">
+                      <p className="font-semibold text-foreground text-sm">{topic.topic}</p>
+                      {topicToChapter[topic.topic] && (
+                        <p className="text-[10px] text-muted-foreground uppercase font-bold">
+                          {topicToChapter[topic.topic].replace('_', ' ')}
+                        </p>
+                      )}
+                    </div>
                     <span className="text-xs font-bold px-2 py-1 rounded bg-destructive/10 text-destructive">
                       Low {topic.accuracy}%
                     </span>
                   </div>
-                  <p className="text-sm text-muted-foreground mb-3">10 practice questions</p>
-                  <Button size="sm" variant="outline" className="w-full text-xs">
-                    Start Revision
+                  <p className="text-sm text-muted-foreground mb-3">Targeted Practice Available</p>
+                  <Button size="sm" variant="outline" className="w-full text-xs" asChild>
+                    <Link to="/practice-questions">Practice Now</Link>
                   </Button>
                 </div>
               ))}
