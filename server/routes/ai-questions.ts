@@ -14,6 +14,7 @@ interface PracticeQuestion {
     steps: string[];
     answer: string;
   };
+  markScheme?: string[];
 }
 
 // Question templates for each topic
@@ -77,8 +78,12 @@ const questionTemplates: Record<string, PracticeQuestion[]> = {
           "Set each factor to zero: x - 2 = 0 or x - 3 = 0",
           "Solve: x = 2 or x = 3",
         ],
-        answer: "x = 2 or x = 3",
+        answer: "x = 2, x = 3",
       },
+      markScheme: [
+        "M1: Factorising the quadratic (x - 2)(x - 3)",
+        "A1: Correct roots x = 2 and x = 3"
+      ]
     },
   ],
 
@@ -721,17 +726,34 @@ router.post("/practice-mark", authMiddleware, async (req: AuthRequest, res: Resp
     }
 
     // AI Marking Logic (Simulated)
-    // In a real app, this would use an LLM to compare the answer
-    const normalize = (str: string) => str.toLowerCase().replace(/\s+/g, '').replace(/[=]/g, '');
-    const isCorrect = normalize(answer) === normalize(question.solutions.answer);
+    // Enhanced normalization for flexible answer matching
+    const normalize = (str: string) => {
+      if (!str) return "";
+      return str.toLowerCase()
+        .replace(/\s+/g, '') // Remove all whitespace
+        .replace(/[=]/g, '') // Remove equals signs
+        .replace(/and/g, ',') // Replace 'and' with comma for multiple answers
+        .replace(/&/g, ',') // Replace '&' with comma
+        .replace(/x/g, '') // Remove variable name if typed like 'x=3'
+        .replace(/theta/g, '') // Remove 'theta'
+        .split(',') // Split by comma
+        .sort() // Sort to handle (2,3) vs (3,2)
+        .join(','); // Rejoin
+    };
+
+    const normalizedUserAnswer = normalize(answer);
+    const normalizedCorrectAnswer = normalize(question.solutions.answer);
+
+    const isCorrect = normalizedUserAnswer === normalizedCorrectAnswer;
 
     res.json({
       success: true,
       isCorrect,
       feedback: isCorrect
-        ? "Excellent! Your answer matches the solution exactly."
-        : `Not quite. Your answer was "${answer}", but the expected result involves ${question.solutions.answer.split('=')[0] || 'different steps'}. Check your working or upload it for analysis!`,
-      solution: question.solutions
+        ? "Excellent! Your answer matches the solution."
+        : `Not quite. Your answer was "${answer}", but the expected result involves ${question.solutions.answer}. Check your working or upload it for analysis!`,
+      solution: question.solutions,
+      markScheme: question.markScheme
     });
   } catch (error) {
     console.error("Error marking answer:", error);
