@@ -9,6 +9,7 @@ const SALT_ROUNDS = 10;
 export interface AuthUser {
   id: number;
   email: string;
+  username: string;
   first_name: string;
   last_name: string;
   subject: string;
@@ -59,6 +60,7 @@ export function verifyToken(token: string): AuthUser | null {
 // Sign up user
 export async function signupUser(
   email: string,
+  username: string,
   password: string,
   firstName: string,
   lastName: string,
@@ -68,15 +70,22 @@ export async function signupUser(
   try {
     // Check if user exists
     const existingUser = await client.query(
-      "SELECT * FROM users WHERE email = $1",
-      [email]
+      "SELECT * FROM users WHERE email = $1 OR username = $2",
+      [email, username]
     );
 
     if (existingUser.rows.length > 0) {
-      return {
-        success: false,
-        message: "Email already registered",
-      };
+      if (existingUser.rows[0].email === email) {
+        return {
+          success: false,
+          message: "Email already registered",
+        };
+      } else {
+        return {
+          success: false,
+          message: "Username already taken",
+        };
+      }
     }
 
     // Hash password
@@ -84,10 +93,10 @@ export async function signupUser(
 
     // Create user
     const result = await client.query(
-      `INSERT INTO users (email, password_hash, first_name, last_name, subject)
-       VALUES ($1, $2, $3, $4, $5)
-       RETURNING id, email, first_name, last_name, subject`,
-      [email, passwordHash, firstName, lastName, subject]
+      `INSERT INTO users (email, username, password_hash, first_name, last_name, subject)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       RETURNING id, email, username, first_name, last_name, subject`,
+      [email, username, passwordHash, firstName, lastName, subject]
     );
 
     const user = result.rows[0] as AuthUser;
@@ -164,6 +173,7 @@ export async function loginUser(
     const authUser: AuthUser = {
       id: user.id,
       email: user.email,
+      username: user.username,
       first_name: user.first_name,
       last_name: user.last_name,
       subject: user.subject,
