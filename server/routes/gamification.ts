@@ -360,4 +360,123 @@ router.get(
   }
 );
 
+/**
+ * Upgrade user plan
+ */
+router.post(
+  "/plan/upgrade",
+  async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+      if (!req.user) {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+      }
+
+      const { planType } = req.body;
+
+      if (!["premium", "pro"].includes(planType)) {
+        res.status(400).json({ error: "Invalid plan type" });
+        return;
+      }
+
+      const result = await pool.query(
+        `UPDATE user_plans
+         SET plan_type = $1, max_papers = $2, updated_at = CURRENT_TIMESTAMP
+         WHERE user_id = $3
+         RETURNING *`,
+        [planType, planType === "premium" ? 100 : 999, req.user.id]
+      );
+
+      if (result.rows.length === 0) {
+        const newPlan = await pool.query(
+          `INSERT INTO user_plans (user_id, plan_type, max_papers)
+           VALUES ($1, $2, $3)
+           RETURNING *`,
+          [req.user.id, planType, planType === "premium" ? 100 : 999]
+        );
+        res.json({
+          success: true,
+          message: `Upgraded to ${planType}`,
+          plan: newPlan.rows[0],
+        });
+      } else {
+        res.json({
+          success: true,
+          message: `Upgraded to ${planType}`,
+          plan: result.rows[0],
+        });
+      }
+    } catch (error) {
+      res.status(500).json({ error: "Failed to upgrade plan" });
+    }
+  }
+);
+
+/**
+ * Get plan pricing and features
+ */
+router.get(
+  "/pricing",
+  async (_req: AuthRequest, res: Response): Promise<void> => {
+    try {
+      const pricing = {
+        plans: [
+          {
+            id: "free",
+            name: "Free",
+            price: 0,
+            period: "forever",
+            description: "Get started with Azim Tutors",
+            features: [
+              "3 past papers per month",
+              "Basic progress tracking",
+              "Topic performance analysis",
+              "Grade simulator access",
+              "Community support",
+            ],
+            limitReached: false,
+          },
+          {
+            id: "premium",
+            name: "Premium",
+            price: 9.99,
+            period: "month",
+            description: "Unlock unlimited access",
+            features: [
+              "100 past papers per month",
+              "AI-powered study recommendations",
+              "Weekly revision plans",
+              "Custom timetable builder",
+              "Priority email support",
+              "Detailed mistake analysis",
+              "Video explanations",
+            ],
+            popular: true,
+          },
+          {
+            id: "pro",
+            name: "Pro",
+            price: 19.99,
+            period: "month",
+            description: "Complete exam mastery",
+            features: [
+              "Unlimited past papers",
+              "1-on-1 personalized coaching",
+              "Custom exam date planning",
+              "AI-generated practice questions",
+              "Priority support",
+              "Detailed progress reports",
+              "Video explanations",
+              "Access to tutor network",
+            ],
+          },
+        ],
+      };
+      res.json(pricing);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch pricing" });
+    }
+  }
+);
+
 export { router as gamificationRouter };
