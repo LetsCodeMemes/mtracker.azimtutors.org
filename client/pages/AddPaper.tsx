@@ -60,6 +60,10 @@ export default function AddPaper() {
   );
 
   useEffect(() => {
+    fetchPapers();
+  }, []);
+
+  useEffect(() => {
     if (year.length === 4 && paperNumber) {
       const found = papers.find(p =>
         p.exam_board === board &&
