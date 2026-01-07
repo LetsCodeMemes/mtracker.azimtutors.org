@@ -37,6 +37,7 @@ import {
   BarChart3,
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { RandomMistake } from "@/components/RandomMistake";
 
 interface PerformanceStats {
   overallScore: number;
@@ -197,12 +198,22 @@ export default function Dashboard() {
 
   // Grade distribution
   const gradeDistribution = [
-    { name: "A*", percentage: 90 },
-    { name: "A", percentage: 80 },
-    { name: "B", percentage: 70 },
-    { name: "C", percentage: 60 },
-    { name: "D", percentage: 50 },
+    { name: "A*", percentage: 83.7 },
+    { name: "A", percentage: 68.3 },
+    { name: "B", percentage: 55.7 },
+    { name: "C", percentage: 43.3 },
+    { name: "D", percentage: 31.0 },
+    { name: "E", percentage: 18.7 },
   ];
+
+  // Prepare chart data for improvement graph
+  const chartData = [...papers]
+    .sort((a, b) => new Date(a.submission_date).getTime() - new Date(b.submission_date).getTime())
+    .map(p => ({
+      date: new Date(p.submission_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
+      score: p.percentage,
+      name: `${p.year} P${p.paper_number}`
+    }));
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-muted/10">
@@ -230,6 +241,51 @@ export default function Dashboard() {
         </div>
 
         <div className="container max-w-6xl px-4 md:px-6 py-8">
+          <div className="mb-8">
+            <RandomMistake />
+          </div>
+
+          {/* Improvement Graph */}
+          {papers.length > 1 && (
+            <Card className="p-6 mb-8">
+              <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-primary" />
+                Score Improvement Over Time
+              </h2>
+              <div className="h-[300px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                    <XAxis
+                      dataKey="date"
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fill: '#888', fontSize: 12 }}
+                    />
+                    <YAxis
+                      domain={[0, 100]}
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fill: '#888', fontSize: 12 }}
+                    />
+                    <Tooltip
+                      contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                      formatter={(value) => [`${value}%`, 'Score']}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="score"
+                      stroke="hsl(var(--primary))"
+                      strokeWidth={3}
+                      dot={{ r: 4, fill: 'hsl(var(--primary))', strokeWidth: 2, stroke: '#fff' }}
+                      activeDot={{ r: 6, strokeWidth: 0 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </Card>
+          )}
+
           {/* Gamification Section */}
           {streak && points && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
@@ -474,13 +530,23 @@ export default function Dashboard() {
 
           {/* Smart Revision Mode */}
           <Card className="p-6 mb-8 bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20">
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-              <Zap className="h-5 w-5 text-primary" />
-              Smart Revision Mode
-            </h2>
-            <p className="text-muted-foreground mb-6">
-              Focus on these topics today to maximize your improvement:
-            </p>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+              <div>
+                <h2 className="text-xl font-bold flex items-center gap-2">
+                  <Zap className="h-5 w-5 text-primary" />
+                  Smart Revision Mode
+                </h2>
+                <p className="text-muted-foreground mt-1">
+                  Focus on these topics today to maximize your improvement:
+                </p>
+              </div>
+              <Button asChild variant="default" className="gap-2">
+                <Link to="/practice-questions">
+                  <Sparkles className="h-4 w-4" />
+                  Try AI Practice Bot
+                </Link>
+              </Button>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               {weakestTopics.map((topic, idx) => (
@@ -637,11 +703,11 @@ export default function Dashboard() {
 }
 
 function calculateGrade(percentage: number): string {
-  if (percentage >= 90) return "A*";
-  if (percentage >= 80) return "A";
-  if (percentage >= 70) return "B";
-  if (percentage >= 60) return "C";
-  if (percentage >= 50) return "D";
-  if (percentage >= 40) return "E";
+  if (percentage >= 83.7) return "A*";
+  if (percentage >= 68.3) return "A";
+  if (percentage >= 55.7) return "B";
+  if (percentage >= 43.3) return "C";
+  if (percentage >= 31.0) return "D";
+  if (percentage >= 18.7) return "E";
   return "U";
 }
