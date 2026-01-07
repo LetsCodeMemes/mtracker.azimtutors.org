@@ -351,6 +351,7 @@ export function getQuestionById(id: string): ExamQuestion | undefined {
   const allQuestions = [
     ...edexcelALevelMaths2024,
     ...edexcelALevelMaths2023,
+    ...edexcelALevelMaths2018,
   ];
   return allQuestions.find((q) => q.id === id);
 }
