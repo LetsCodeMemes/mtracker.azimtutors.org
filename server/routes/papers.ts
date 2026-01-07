@@ -161,11 +161,26 @@ router.post(
           [totalMarks, userPaperId]
         );
 
+        // --- Award Points ---
+        const POINTS_PER_SUBMISSION = 5;
+        const POINTS_PER_MARK = 3;
+        const totalPointsEarned = POINTS_PER_SUBMISSION + (totalMarks * POINTS_PER_MARK);
+
+        await client.query(
+          `UPDATE user_points
+           SET total_points = total_points + $1,
+               experience = experience + $1,
+               updated_at = CURRENT_TIMESTAMP
+           WHERE user_id = $2`,
+          [totalPointsEarned, req.user.id]
+        );
+
         res.json({
           success: true,
           message: "Paper submitted successfully",
           userPaperId,
           totalMarks,
+          pointsEarned: totalPointsEarned
         });
       } finally {
         client.release();
