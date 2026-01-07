@@ -48,14 +48,29 @@ export default function AddPaper() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [marks, setMarks] = useState<Record<number, number>>({});
+
+  // Selection states
+  const [board, setBoard] = useState("Edexcel");
+  const [year, setYear] = useState("20");
+  const [paperNumber, setPaperNumber] = useState("");
+  const [paperFound, setPaperFound] = useState<Paper | null>(null);
   const [mistakeLogs, setMistakeLogs] = useState<MistakeLogEntry[]>([]);
   const [submissionDate, setSubmissionDate] = useState(
     new Date().toISOString().split("T")[0]
   );
 
   useEffect(() => {
-    fetchPapers();
-  }, []);
+    if (year.length === 4 && paperNumber) {
+      const found = papers.find(p =>
+        p.exam_board === board &&
+        p.year.toString() === year &&
+        p.paper_number.toString() === paperNumber
+      );
+      setPaperFound(found || null);
+    } else {
+      setPaperFound(null);
+    }
+  }, [board, year, paperNumber, papers]);
 
   const fetchPapers = async () => {
     setLoading(true);
@@ -205,9 +220,9 @@ export default function AddPaper() {
 
               {/* Paper Selection Step */}
               {step === "select" && (
-                <div className="space-y-6">
-                  <div>
-                    <h2 className="text-2xl font-bold mb-6">Select Exam Paper</h2>
+                <div className="space-y-8">
+                  <div className="space-y-6">
+                    <h2 className="text-2xl font-bold">Select Exam Paper</h2>
 
                     {loading ? (
                       <div className="flex items-center justify-center py-16">
@@ -216,37 +231,79 @@ export default function AddPaper() {
                           <p className="text-muted-foreground">Loading papers...</p>
                         </div>
                       </div>
-                    ) : papers.length === 0 ? (
-                      <Card className="p-12 text-center">
-                        <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                        <p className="text-muted-foreground">No papers available yet</p>
-                      </Card>
                     ) : (
-                      <div className="max-w-xl">
-                        <Label className="text-sm font-medium mb-2 block">Choose Paper from Dropdown</Label>
-                        <Select onValueChange={(val) => {
-                          const paper = papers.find(p => p.id.toString() === val);
-                          if (paper) handleSelectPaper(paper);
-                        }}>
-                          <SelectTrigger className="w-full h-14 text-lg">
-                            <SelectValue placeholder="Select an Edexcel Paper..." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {papers.map((paper) => (
-                              <SelectItem key={paper.id} value={paper.id.toString()}>
-                                {paper.exam_board} {paper.year} - Paper {paper.paper_number}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="space-y-2">
+                          <Label>Exam Board</Label>
+                          <Select disabled value={board} onValueChange={setBoard}>
+                            <SelectTrigger className="h-12">
+                              <SelectValue placeholder="Board" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Edexcel">Edexcel</SelectItem>
+                              <SelectItem value="AQA">AQA (Coming Soon)</SelectItem>
+                              <SelectItem value="OCR">OCR (Coming Soon)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>Year</Label>
+                          <Input
+                            value={year}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              if (val.startsWith("20") && val.length <= 4) {
+                                setYear(val);
+                              }
+                            }}
+                            placeholder="20__"
+                            className="h-12 text-lg"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>Paper</Label>
+                          <Select value={paperNumber} onValueChange={setPaperNumber}>
+                            <SelectTrigger className="h-12">
+                              <SelectValue placeholder="Select Paper" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="1">Paper 1 (Pure)</SelectItem>
+                              <SelectItem value="2">Paper 2 (Pure)</SelectItem>
+                              <SelectItem value="3" disabled>Paper 3 (Stats/Mech - Coming Soon)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
+                    )}
+
+                    {paperFound ? (
+                      <Card className="p-6 border-primary bg-primary/5 flex items-center justify-between">
+                        <div>
+                          <p className="font-bold text-lg text-primary">Paper Found!</p>
+                          <p className="text-sm text-muted-foreground">
+                            {paperFound.exam_board} {paperFound.year} - Paper {paperFound.paper_number}
+                          </p>
+                        </div>
+                        <Button onClick={() => handleSelectPaper(paperFound)}>
+                          Start Entry <ChevronRight className="ml-2 h-4 w-4" />
+                        </Button>
+                      </Card>
+                    ) : year.length === 4 && paperNumber && !loading && (
+                      <Card className="p-6 border-amber-200 bg-amber-50 flex items-center gap-3">
+                        <AlertCircle className="h-5 w-5 text-amber-600" />
+                        <p className="text-sm text-amber-800 font-medium">
+                          We don't have the data for this paper yet. Please try another or contact support.
+                        </p>
+                      </Card>
                     )}
                   </div>
 
                   {/* Quick Select Grid (Mini) */}
                   {!loading && papers.length > 0 && (
-                    <div className="mt-8">
-                      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">Quick Select</h3>
+                    <div className="mt-8 border-t pt-8">
+                      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">Quick Select Recent</h3>
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                         {papers.slice(0, 6).map((paper) => (
                           <button
