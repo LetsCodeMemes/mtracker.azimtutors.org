@@ -1,4 +1,4 @@
-import { ExamQuestion } from "./exam-mappings";
+import { ExamQuestion } from "./types";
 
 /* 2018 */
 export const edexcelALevelMaths2018_P2: ExamQuestion[] = [
