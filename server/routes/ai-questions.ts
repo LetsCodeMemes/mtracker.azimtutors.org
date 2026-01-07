@@ -700,4 +700,77 @@ router.post("/practice-submit", authMiddleware, async (req: AuthRequest, res: Re
   }
 });
 
+/**
+ * Mark a user's answer for a practice question
+ */
+router.post("/practice-mark", authMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    const { questionId, topic, answer } = req.body;
+
+    if (!topic || !questionId || answer === undefined) {
+      return res.status(400).json({
+        error: "Topic, questionId, and answer are required",
+      });
+    }
+
+    const templates = questionTemplates[topic] || [];
+    const question = templates.find(q => q.id === questionId);
+
+    if (!question) {
+      return res.status(404).json({ error: "Question not found" });
+    }
+
+    // AI Marking Logic (Simulated)
+    // In a real app, this would use an LLM to compare the answer
+    const normalize = (str: string) => str.toLowerCase().replace(/\s+/g, '').replace(/[=]/g, '');
+    const isCorrect = normalize(answer) === normalize(question.solutions.answer);
+
+    res.json({
+      success: true,
+      isCorrect,
+      feedback: isCorrect
+        ? "Excellent! Your answer matches the solution exactly."
+        : `Not quite. Your answer was "${answer}", but the expected result involves ${question.solutions.answer.split('=')[0] || 'different steps'}. Check your working or upload it for analysis!`,
+      solution: question.solutions
+    });
+  } catch (error) {
+    console.error("Error marking answer:", error);
+    res.status(500).json({ error: "Failed to mark answer" });
+  }
+});
+
+/**
+ * Analyze working out image (Simulated)
+ */
+router.post("/practice-analyze-working", authMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    const { questionId, topic, imageData } = req.body;
+
+    if (!topic || !questionId || !imageData) {
+      return res.status(400).json({
+        error: "Topic, questionId, and imageData are required",
+      });
+    }
+
+    // AI Vision Analysis (Simulated)
+    const topicMistakes: Record<string, string> = {
+      Algebra: "I noticed you made a sign error in the second step when moving terms across the equals sign. Remember, when you move a term, its sign must flip!",
+      Calculus: "It looks like you forgot the power rule for the constant term. Remember that the derivative of a constant is 0, not the constant itself.",
+      Trigonometry: "You used the Sine rule but forgot to account for the ambiguous case (SSA). Check if there's a second possible angle for your triangle.",
+      Mechanics: "Your resolution of forces seems correct, but you missed the frictional force acting against the direction of motion. Re-calculate the net force.",
+    };
+
+    const feedback = topicMistakes[topic] || "I've analyzed your working. It seems there's a small calculation error mid-way through. Re-check the arithmetic in your second step.";
+
+    res.json({
+      success: true,
+      feedback,
+      mistakeFound: true
+    });
+  } catch (error) {
+    console.error("Error analyzing working:", error);
+    res.status(500).json({ error: "Failed to analyze working" });
+  }
+});
+
 export { router as aiQuestionsRouter };
