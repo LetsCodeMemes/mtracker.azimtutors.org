@@ -1,8 +1,15 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, LogOut } from "lucide-react";
+import { Menu, X, LogOut, ChevronDown, Sparkles, LayoutDashboard, FilePlus, Calculator, Calendar, Brain } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/lib/auth";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -28,34 +35,59 @@ export function Header() {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-8">
+        <nav className="hidden md:flex items-center gap-6">
           <Link to="/" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
             Home
           </Link>
           {user && (
             <>
-              <Link to="/dashboard" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+              <Link to="/dashboard" className="text-sm font-medium text-foreground hover:text-primary transition-colors flex items-center gap-1.5">
+                <LayoutDashboard className="h-4 w-4" />
                 Dashboard
               </Link>
-              <Link to="/add-paper" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
-                Add Paper
-              </Link>
-              <Link to="/simulator" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
-                Grade Simulator
-              </Link>
-              <Link to="/revision-plan" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
-                Revision Plan
-              </Link>
-              <Link to="/practice-questions" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
-                Practice Questions
-              </Link>
-              <Link to="/premium" className="text-sm font-medium text-primary hover:opacity-80 transition-opacity font-bold">
-                Premium
-              </Link>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger className="text-sm font-medium text-foreground hover:text-primary transition-colors flex items-center gap-1 focus:outline-none">
+                  Tools <ChevronDown className="h-4 w-4 opacity-50" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-56">
+                  <DropdownMenuItem asChild>
+                    <Link to="/add-paper" className="flex items-center gap-2 w-full">
+                      <FilePlus className="h-4 w-4" />
+                      Add Paper
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/simulator" className="flex items-center gap-2 w-full">
+                      <Calculator className="h-4 w-4" />
+                      Grade Simulator
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/revision-plan" className="flex items-center gap-2 w-full">
+                      <Calendar className="h-4 w-4" />
+                      Revision Plan
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/practice-questions" className="flex items-center gap-2 w-full">
+                      <Brain className="h-4 w-4" />
+                      Practice Questions
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild className="text-primary focus:text-primary font-semibold">
+                    <Link to="/premium" className="flex items-center gap-2 w-full">
+                      <Sparkles className="h-4 w-4" />
+                      Premium Features
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </>
           )}
           <Link to="/features" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
-            Features
+            About
           </Link>
         </nav>
 
