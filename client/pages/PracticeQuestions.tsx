@@ -3,6 +3,7 @@ import { Footer } from "@/components/Footer";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
+import { useAuth } from "@/lib/auth";
 import {
   Lightbulb,
   BookOpen,
@@ -33,6 +34,7 @@ interface QuestionSet {
 }
 
 export default function PracticeQuestions() {
+  const { token } = useAuth();
   const [topics, setTopics] = useState<string[]>([]);
   const [selectedTopic, setSelectedTopic] = useState<string>("");
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>("mixed");
@@ -50,7 +52,11 @@ export default function PracticeQuestions() {
 
   const fetchTopics = async () => {
     try {
-      const response = await fetch("/api/ai/practice-topics");
+      const response = await fetch("/api/ai/practice-topics", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const data = await response.json();
       setTopics(data.topics);
     } catch (error) {
@@ -65,6 +71,7 @@ export default function PracticeQuestions() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           topic,
@@ -107,6 +114,7 @@ export default function PracticeQuestions() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           questionId: question.id,
