@@ -90,6 +90,31 @@ export async function signupUser(
     );
 
     const user = result.rows[0] as AuthUser;
+
+    // Create user plan (free plan with 3 papers limit)
+    await client.query(
+      `INSERT INTO user_plans (user_id, plan_type, max_papers, papers_submitted)
+       VALUES ($1, 'free', 3, 0)
+       ON CONFLICT DO NOTHING`,
+      [user.id]
+    );
+
+    // Create user streaks record
+    await client.query(
+      `INSERT INTO user_streaks (user_id, current_streak, longest_streak)
+       VALUES ($1, 0, 0)
+       ON CONFLICT DO NOTHING`,
+      [user.id]
+    );
+
+    // Create user points record
+    await client.query(
+      `INSERT INTO user_points (user_id, total_points, level, experience)
+       VALUES ($1, 0, 1, 0)
+       ON CONFLICT DO NOTHING`,
+      [user.id]
+    );
+
     const token = generateToken(user);
 
     return {
