@@ -234,6 +234,32 @@ export async function initializeDatabase() {
       )
     `);
 
+    // Email notifications
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS email_notifications (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        notification_type VARCHAR(50) NOT NULL,
+        subject VARCHAR(200) NOT NULL,
+        message TEXT,
+        status VARCHAR(20) DEFAULT 'pending',
+        sent_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Notification preferences
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS notification_preferences (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE UNIQUE,
+        streak_reminders BOOLEAN DEFAULT true,
+        weekly_summaries BOOLEAN DEFAULT true,
+        badge_celebrations BOOLEAN DEFAULT true,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
     console.log("✅ Database schema initialized successfully");
 
     // Seed papers and questions data
