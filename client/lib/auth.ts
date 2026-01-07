@@ -8,6 +8,7 @@ export interface User {
   first_name: string;
   last_name: string;
   subject: string;
+  is_leaderboard_public: boolean;
 }
 
 interface AuthState {
