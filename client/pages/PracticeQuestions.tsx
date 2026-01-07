@@ -2,7 +2,8 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
+import { Input } from "@/components/ui/input";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/lib/auth";
 import { Link } from "react-router-dom";
 import {
@@ -13,6 +14,11 @@ import {
   ChevronRight,
   Loader,
   Sparkles,
+  Send,
+  Upload,
+  Camera,
+  MessageSquare,
+  AlertCircle,
 } from "lucide-react";
 
 interface PracticeQuestion {
@@ -48,6 +54,12 @@ export default function PracticeQuestions() {
   const [showHint, setShowHint] = useState(false);
   const [userAnswers, setUserAnswers] = useState<Record<string, boolean>>({});
   const [step, setStep] = useState<"select" | "practice">("select");
+  const [userTypedAnswer, setUserTypedAnswer] = useState("");
+  const [markingFeedback, setMarkingFeedback] = useState<string | null>(null);
+  const [isMarking, setIsMarking] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [aiAnalysis, setAiAnalysis] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchTopics();
@@ -136,6 +148,9 @@ export default function PracticeQuestions() {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
       setShowSolution(false);
       setShowHint(false);
+      setUserTypedAnswer("");
+      setMarkingFeedback(null);
+      setAiAnalysis(null);
     }
   };
 
@@ -144,7 +159,83 @@ export default function PracticeQuestions() {
       setCurrentQuestionIndex(currentQuestionIndex - 1);
       setShowSolution(false);
       setShowHint(false);
+      setUserTypedAnswer("");
+      setMarkingFeedback(null);
+      setAiAnalysis(null);
     }
+  };
+
+  const checkAnswer = async () => {
+    if (!userTypedAnswer) return;
+    setIsMarking(true);
+    setAiAnalysis(null);
+
+    try {
+      const question = questions[currentQuestionIndex];
+      const response = await fetch("/api/ai/practice-mark", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          questionId: question.id,
+          topic: selectedTopic,
+          answer: userTypedAnswer
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setMarkingFeedback(data.feedback);
+        if (data.isCorrect) {
+          handleAnswer(true);
+          setShowSolution(true);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to mark answer:", error);
+    } finally {
+      setIsMarking(false);
+    }
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      analyzeWorking(file);
+    }
+  };
+
+  const analyzeWorking = async (file: File) => {
+    setIsAnalyzing(true);
+    // Simulate uploading and analyzing
+    setTimeout(async () => {
+      try {
+        const question = questions[currentQuestionIndex];
+        const response = await fetch("/api/ai/practice-analyze-working", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            questionId: question.id,
+            topic: selectedTopic,
+            imageData: "base64_simulated_data"
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setAiAnalysis(data.feedback);
+        }
+      } catch (error) {
+        console.error("Failed to analyze working:", error);
+      } finally {
+        setIsAnalyzing(false);
+      }
+    }, 1500);
   };
 
   const getDifficultyColor = (difficulty: string) => {
@@ -332,6 +423,101 @@ export default function PracticeQuestions() {
               <h3 className="text-2xl font-bold text-slate-900 mb-6">
                 {currentQuestion.question}
               </h3>
+
+              {/* Answer Input Area */}
+              {!showSolution && (
+                <div className="mb-6 space-y-4">
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Type your answer here..."
+                      value={userTypedAnswer}
+                      onChange={(e) => setUserTypedAnswer(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && checkAnswer()}
+                      className="text-lg py-6"
+                    />
+                    <Button
+                      size="lg"
+                      onClick={checkAnswer}
+                      disabled={!userTypedAnswer || isMarking}
+                      className="px-8"
+                    >
+                      {isMarking ? <Loader className="animate-spin" /> : <Send className="w-4 h-4" />}
+                    </Button>
+                  </div>
+
+                  {markingFeedback && (
+                    <div className={`p-4 rounded-lg flex gap-3 ${markingFeedback.includes('Excellent') ? 'bg-emerald-50 border border-emerald-100 text-emerald-800' : 'bg-rose-50 border border-rose-100 text-rose-800'}`}>
+                      {markingFeedback.includes('Excellent') ? <CheckCircle className="w-5 h-5 shrink-0" /> : <AlertCircle className="w-5 h-5 shrink-0" />}
+                      <div className="space-y-2">
+                        <p className="font-medium text-sm">{markingFeedback}</p>
+                        {!markingFeedback.includes('Excellent') && (
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="bg-white hover:bg-rose-100 border-rose-200 text-rose-700 h-8"
+                              onClick={() => fileInputRef.current?.click()}
+                            >
+                              <Camera className="w-3 h-3 mr-2" />
+                              Upload Working Out
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-rose-600 hover:text-rose-700 h-8"
+                              onClick={() => {
+                                handleAnswer(false);
+                                setShowSolution(true);
+                              }}
+                            >
+                              Show Solution
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                  />
+
+                  {isAnalyzing && (
+                    <div className="flex items-center gap-3 p-4 bg-blue-50 border border-blue-100 rounded-lg text-blue-700 animate-pulse">
+                      <Sparkles className="w-5 h-5 animate-spin" />
+                      <p className="text-sm font-medium">AI is spotting your mistake...</p>
+                    </div>
+                  )}
+
+                  {aiAnalysis && (
+                    <Card className="p-4 bg-gradient-to-br from-indigo-50 to-blue-50 border-indigo-100 shadow-inner">
+                      <div className="flex items-start gap-3">
+                        <div className="bg-white p-2 rounded-full shadow-sm">
+                          <Sparkles className="w-4 h-4 text-indigo-600" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-1">AI Mistake Analysis</p>
+                          <p className="text-sm text-slate-700 leading-relaxed">{aiAnalysis}</p>
+                          <Button
+                            variant="link"
+                            className="p-0 h-auto text-xs text-indigo-600 font-bold mt-2"
+                            onClick={() => {
+                              handleAnswer(false);
+                              setShowSolution(true);
+                            }}
+                          >
+                            Show step-by-step solution →
+                          </Button>
+                        </div>
+                      </div>
+                    </Card>
+                  )}
+                </div>
+              )}
 
               {/* Hints Section */}
               {!showSolution && (
