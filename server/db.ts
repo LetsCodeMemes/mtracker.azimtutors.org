@@ -264,6 +264,17 @@ export async function initializeDatabase() {
       )
     `);
 
+    // Completed topics tracking
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS completed_topics (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        topic_id VARCHAR(100) NOT NULL,
+        completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(user_id, topic_id)
+      )
+    `);
+
     console.log("✅ Database schema initialized successfully");
 
     // Seed papers and questions data
