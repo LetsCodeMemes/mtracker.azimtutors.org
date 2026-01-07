@@ -676,8 +676,11 @@ export default function Dashboard() {
                     </li>
                   </ul>
                 </div>
-                <Button size="lg" className="whitespace-nowrap">
-                  Upgrade Now
+                <Button size="lg" asChild className="gap-2">
+                  <Link to="/premium">
+                    <Sparkles className="h-4 w-4" />
+                    Upgrade Now
+                  </Link>
                 </Button>
               </div>
             </Card>
