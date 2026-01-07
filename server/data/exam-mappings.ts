@@ -364,7 +364,7 @@ export function getAvailableTopics(
 ): string[] {
   const allQuestions =
     examBoard === "Edexcel"
-      ? [...edexcelALevelMaths2024, ...edexcelALevelMaths2023]
+      ? [...edexcelALevelMaths2024, ...edexcelALevelMaths2023, ...edexcelALevelMaths2018]
       : [];
 
   const topics = new Set(allQuestions.map((q) => q.topic));
