@@ -43,5 +43,8 @@ export function createServer() {
   // Gamification routes
   app.use("/api/gamification", gamificationRouter);
 
+  // AI Questions routes
+  app.use("/api/ai", aiQuestionsRouter);
+
   return app;
 }
