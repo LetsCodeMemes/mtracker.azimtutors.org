@@ -296,11 +296,24 @@ export default function GradeSimulator() {
         <div className="container max-w-6xl">
           <div className="mb-8">
             <h1 className="text-4xl font-bold mb-2">Grade Uplift Simulator</h1>
-            <p className="text-muted-foreground max-w-2xl">
-              Understand how improving specific topics impacts your overall grade.
-              Adjust the sliders below to see how increasing your accuracy in weaker areas
-              could boost your predicted A-Level grade.
-            </p>
+            <Card className="p-4 bg-blue-50 border-blue-200 mb-6">
+              <div className="flex gap-3">
+                <Info className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                <div className="text-sm text-blue-800 space-y-2">
+                  <p className="font-bold">What is this?</p>
+                  <p>
+                    The Grade Uplift Simulator shows you how much your overall A-Level grade could improve if you focus on specific topics. It uses real Edexcel grade boundaries to calculate your projected result.
+                  </p>
+                  <p className="font-bold">How do I use it?</p>
+                  <ol className="list-decimal ml-4 space-y-1">
+                    <li>Look at your <strong>Current Score</strong> (based on papers you've already submitted).</li>
+                    <li>Find your weaker topics in the <strong>Adjust Topic Performance</strong> section.</li>
+                    <li>Move the sliders to see what happens to your <strong>Projected Score</strong> if you improve your accuracy in those topics.</li>
+                    <li>The <strong>Improvement</strong> card shows you exactly how many grade steps you could climb!</li>
+                  </ol>
+                </div>
+              </div>
+            </Card>
           </div>
 
           {/* KPI Cards */}
