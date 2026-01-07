@@ -16,6 +16,7 @@ export default function Signup() {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
+    username: "",
     email: "",
     password: "",
     subject: "A Level Edexcel Maths",
@@ -36,6 +37,7 @@ export default function Signup() {
     try {
       const response = await signupClient(
         formData.email,
+        formData.username,
         formData.password,
         formData.firstName,
         formData.lastName,
