@@ -46,6 +46,9 @@ export function Header() {
               <Link to="/revision-plan" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
                 Revision Plan
               </Link>
+              <Link to="/practice-questions" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+                Practice Questions
+              </Link>
             </>
           )}
           <Link to="/features" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
