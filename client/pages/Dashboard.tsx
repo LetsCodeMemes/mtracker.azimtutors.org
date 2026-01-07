@@ -167,11 +167,22 @@ export default function Dashboard() {
       const pointsData = pointsRes.ok ? await pointsRes.json() : null;
       const planData = planRes.ok ? await planRes.json() : null;
 
-      setStats(statsData);
-      setPapers(papersData);
-      setStreak(streakData);
-      setPoints(pointsData);
-      setPlan(planData);
+      // Defensive checks for data types
+      if (statsData && !statsData.error) {
+        setStats(statsData);
+      } else {
+        setError("Failed to load performance stats");
+      }
+
+      if (Array.isArray(papersData)) {
+        setPapers(papersData);
+      } else if (papersData && papersData.error) {
+        console.error("Papers fetch error:", papersData.error);
+      }
+
+      if (streakData && !streakData.error) setStreak(streakData);
+      if (pointsData && !pointsData.error) setPoints(pointsData);
+      if (planData && !planData.error) setPlan(planData);
     } catch (err) {
       setError("Failed to load dashboard data");
       console.error(err);
