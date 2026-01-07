@@ -118,7 +118,7 @@ export function Leaderboard() {
 
                 return (
                   <tr
-                    key={entry.username}
+                    key={entry.username || `${entry.first_name}-${entry.last_name}-${index}`}
                     className={`${isCurrentUser ? "bg-primary/5 font-semibold" : "hover:bg-muted/50"} transition-colors`}
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
