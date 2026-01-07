@@ -20,6 +20,7 @@ import Onboarding from "./pages/Onboarding";
 import PracticeQuestions from "./pages/PracticeQuestions";
 import Premium from "./pages/Premium";
 import ForgotPassword from "./pages/ForgotPassword";
+import ExportData from "./pages/ExportData";
 import { Placeholder } from "./pages/Placeholder";
 import NotFound from "./pages/NotFound";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -101,6 +102,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <Premium />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/export-data"
+            element={
+              <ProtectedRoute>
+                <ExportData />
               </ProtectedRoute>
             }
           />
