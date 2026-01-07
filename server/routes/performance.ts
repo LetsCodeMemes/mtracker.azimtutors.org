@@ -35,12 +35,12 @@ router.get("/stats", async (req: AuthRequest, res: Response): Promise<void> => {
 
     // Topic performance
     const topicsResult = await pool.query(
-      `SELECT 
+      `SELECT
         eq.topic,
         COUNT(DISTINCT eq.id) as total_questions,
         COALESCE(SUM(qr.marks_obtained), 0) as marks_obtained,
         COALESCE(SUM(eq.marks_available), 0) as marks_available,
-        ROUND(COALESCE(SUM(qr.marks_obtained)::FLOAT / NULLIF(SUM(eq.marks_available), 0), 0) * 100, 1) as accuracy
+        ROUND((COALESCE(SUM(qr.marks_obtained), 0)::FLOAT / NULLIF(SUM(eq.marks_available), 0) * 100)::NUMERIC, 1) as accuracy
       FROM exam_questions eq
       LEFT JOIN question_responses qr ON eq.id = qr.question_id
       LEFT JOIN user_papers up ON qr.user_paper_id = up.id AND up.user_id = $1
@@ -51,12 +51,12 @@ router.get("/stats", async (req: AuthRequest, res: Response): Promise<void> => {
 
     // Question type weakness analysis (by sub_topic)
     const weaknessResult = await pool.query(
-      `SELECT 
+      `SELECT
         eq.sub_topic as question_type,
         COUNT(DISTINCT eq.id) as total_questions,
         COALESCE(SUM(eq.marks_available), 0) as total_marks,
         COALESCE(SUM(eq.marks_available - qr.marks_obtained), 0) as marks_lost,
-        ROUND(COALESCE(SUM(qr.marks_obtained)::FLOAT / NULLIF(SUM(eq.marks_available), 0), 0) * 100, 1) as accuracy
+        ROUND((COALESCE(SUM(qr.marks_obtained), 0)::FLOAT / NULLIF(SUM(eq.marks_available), 0) * 100)::NUMERIC, 1) as accuracy
       FROM exam_questions eq
       LEFT JOIN question_responses qr ON eq.id = qr.question_id
       LEFT JOIN user_papers up ON qr.user_paper_id = up.id AND up.user_id = $1
@@ -88,7 +88,7 @@ router.get("/papers", async (req: AuthRequest, res: Response) => {
     }
 
     const result = await pool.query(
-      `SELECT 
+      `SELECT
         up.id,
         p.exam_board,
         p.year,
@@ -96,7 +96,7 @@ router.get("/papers", async (req: AuthRequest, res: Response) => {
         up.marks_obtained,
         COALESCE(SUM(eq.marks_available), 0) as total_marks,
         up.submission_date,
-        ROUND(CAST(up.marks_obtained AS FLOAT) / NULLIF(SUM(eq.marks_available), 100) * 100, 1) as percentage
+        ROUND((CAST(up.marks_obtained AS FLOAT) / NULLIF(SUM(eq.marks_available), 100) * 100)::NUMERIC, 1) as percentage
       FROM user_papers up
       JOIN papers p ON up.paper_id = p.id
       LEFT JOIN exam_questions eq ON p.id = eq.paper_id
@@ -122,10 +122,10 @@ router.get("/progress", async (req: AuthRequest, res: Response) => {
     }
 
     const result = await pool.query(
-      `SELECT 
+      `SELECT
         DATE_TRUNC('month', up.submission_date)::date as month,
-        ROUND(AVG(CAST(up.marks_obtained AS FLOAT) / 
-          (SELECT COALESCE(SUM(marks_available), 100) FROM exam_questions WHERE paper_id = up.paper_id)) * 100, 1) as avg_score
+        ROUND((AVG(CAST(up.marks_obtained AS FLOAT) /
+          (SELECT COALESCE(SUM(marks_available), 100) FROM exam_questions WHERE paper_id = up.paper_id)) * 100)::NUMERIC, 1) as avg_score
       FROM user_papers up
       WHERE up.user_id = $1
       GROUP BY DATE_TRUNC('month', up.submission_date)
