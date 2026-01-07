@@ -89,6 +89,70 @@ export async function initializeDatabase() {
       )
     `);
 
+    // Mistake logging table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS mistake_log (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        question_id INTEGER REFERENCES exam_questions(id) ON DELETE CASCADE,
+        user_paper_id INTEGER REFERENCES user_papers(id) ON DELETE CASCADE,
+        topic VARCHAR(100) NOT NULL,
+        mistake_type VARCHAR(50) NOT NULL,
+        description TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // User streaks tracking
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS user_streaks (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE UNIQUE,
+        current_streak INTEGER DEFAULT 0,
+        longest_streak INTEGER DEFAULT 0,
+        last_submission_date DATE,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // User badges
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS user_badges (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        badge_id VARCHAR(50) NOT NULL,
+        badge_name VARCHAR(100) NOT NULL,
+        badge_description TEXT,
+        earned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(user_id, badge_id)
+      )
+    `);
+
+    // User plan/subscription
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS user_plans (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE UNIQUE,
+        plan_type VARCHAR(50) DEFAULT 'free',
+        max_papers INTEGER DEFAULT 3,
+        papers_submitted INTEGER DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Gamification points
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS user_points (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE UNIQUE,
+        total_points INTEGER DEFAULT 0,
+        level INTEGER DEFAULT 1,
+        experience INTEGER DEFAULT 0,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
     console.log("✅ Database schema initialized successfully");
   } finally {
     client.release();
