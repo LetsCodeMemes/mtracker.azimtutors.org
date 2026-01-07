@@ -34,6 +34,16 @@ async function seedPapersData(client: any) {
       ...(edexcelALevelMaths2018_P2 || []),
     ];
 
+    console.log(`🔍 2024: ${(edexcelALevelMaths2024 || []).length}`);
+    console.log(`🔍 2023: ${(edexcelALevelMaths2023 || []).length}`);
+    console.log(`🔍 2023 Full: ${(edexcelALevelMaths2023_Full || []).length}`);
+    console.log(`🔍 2022: ${(edexcelALevelMaths2022 || []).length}`);
+    console.log(`🔍 2021: ${(edexcelALevelMaths2021 || []).length}`);
+    console.log(`🔍 2020: ${(edexcelALevelMaths2020 || []).length}`);
+    console.log(`🔍 2019: ${(edexcelALevelMaths2019 || []).length}`);
+    console.log(`🔍 2018: ${(edexcelALevelMaths2018 || []).length}`);
+    console.log(`🔍 2018 P2: ${(edexcelALevelMaths2018_P2 || []).length}`);
+
     console.log(`🔍 Found ${allQuestions.length} total questions to seed`);
 
     // Collect unique papers
