@@ -3,7 +3,7 @@ import {
   edexcelALevelMaths2024,
   edexcelALevelMaths2023,
   edexcelALevelMaths2018,
-} from "./exam-mappings";
+} from "./data/exam-mappings";
 import {
   edexcelALevelMaths2018_P2,
   edexcelALevelMaths2019,
@@ -11,7 +11,7 @@ import {
   edexcelALevelMaths2021,
   edexcelALevelMaths2022,
   edexcelALevelMaths2023_Full,
-} from "./exam-mappings-full";
+} from "./data/exam-mappings-full";
 import { topicToChapter } from "./data/chapters";
 
 const pool = new Pool({
