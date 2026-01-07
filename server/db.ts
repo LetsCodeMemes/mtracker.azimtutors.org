@@ -1,8 +1,89 @@
 import { Pool } from "pg";
+import {
+  edexcelALevelMaths2024,
+  edexcelALevelMaths2023,
+  edexcelALevelMaths2018,
+} from "./data/exam-mappings";
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
+
+// Seed papers and questions data from exam mappings
+async function seedPapersData(client: any) {
+  try {
+    // Get unique papers from exam mappings
+    const allQuestions = [
+      ...edexcelALevelMaths2024,
+      ...edexcelALevelMaths2023,
+      ...edexcelALevelMaths2018,
+    ];
+
+    // Collect unique papers
+    const uniquePapers = new Map<
+      string,
+      { examBoard: string; year: number; paperNumber: number }
+    >();
+    const uniqueQuestions = new Map<string, any>();
+
+    for (const q of allQuestions) {
+      const paperKey = `${q.examBoard}-${q.year}-${q.paperNumber}`;
+      if (!uniquePapers.has(paperKey)) {
+        uniquePapers.set(paperKey, {
+          examBoard: q.examBoard,
+          year: q.year,
+          paperNumber: q.paperNumber,
+        });
+      }
+      uniqueQuestions.set(q.id, q);
+    }
+
+    // Insert papers
+    for (const [_key, paper] of uniquePapers) {
+      await client.query(
+        `INSERT INTO papers (exam_board, year, paper_number, total_marks)
+         VALUES ($1, $2, $3, 100)
+         ON CONFLICT DO NOTHING`,
+        [paper.examBoard, paper.year, paper.paperNumber]
+      );
+    }
+
+    // Get all paper IDs for mapping
+    const paperResult = await client.query(`
+      SELECT id, exam_board, year, paper_number FROM papers
+    `);
+    const paperMap = new Map<string, number>();
+    for (const row of paperResult.rows) {
+      const key = `${row.exam_board}-${row.year}-${row.paper_number}`;
+      paperMap.set(key, row.id);
+    }
+
+    // Insert questions
+    for (const [_id, question] of uniqueQuestions) {
+      const paperKey = `${question.examBoard}-${question.year}-${question.paperNumber}`;
+      const paperId = paperMap.get(paperKey);
+
+      if (paperId) {
+        await client.query(
+          `INSERT INTO exam_questions (paper_id, question_number, topic, sub_topic, marks_available)
+           VALUES ($1, $2, $3, $4, $5)
+           ON CONFLICT DO NOTHING`,
+          [
+            paperId,
+            question.questionNumber,
+            question.topic,
+            question.subTopic || null,
+            question.marksAvailable,
+          ]
+        );
+      }
+    }
+
+    console.log("✅ Papers and questions seeded successfully");
+  } catch (error) {
+    console.error("Error seeding papers data:", error);
+  }
+}
 
 // Initialize database schema
 export async function initializeDatabase() {
