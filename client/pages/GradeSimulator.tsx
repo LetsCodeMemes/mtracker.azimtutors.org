@@ -50,12 +50,12 @@ interface GradeThreshold {
 }
 
 const GRADE_THRESHOLDS: GradeThreshold[] = [
-  { grade: "A*", minPercentage: 90, target: "Outstanding", color: "bg-green-600" },
-  { grade: "A", minPercentage: 80, target: "Excellent", color: "bg-green-500" },
-  { grade: "B", minPercentage: 70, target: "Good", color: "bg-blue-500" },
-  { grade: "C", minPercentage: 60, target: "Satisfactory", color: "bg-yellow-500" },
-  { grade: "D", minPercentage: 50, target: "Pass", color: "bg-orange-500" },
-  { grade: "E", minPercentage: 40, target: "Borderline", color: "bg-red-500" },
+  { grade: "A*", minPercentage: 83.7, target: "Exceptional", color: "bg-purple-600" },
+  { grade: "A", minPercentage: 68.3, target: "Excellent", color: "bg-green-600" },
+  { grade: "B", minPercentage: 55.7, target: "Good", color: "bg-blue-600" },
+  { grade: "C", minPercentage: 43.3, target: "Satisfactory", color: "bg-yellow-600" },
+  { grade: "D", minPercentage: 31.0, target: "Pass", color: "bg-orange-600" },
+  { grade: "E", minPercentage: 18.7, target: "Borderline", color: "bg-red-600" },
 ];
 
 // Key mistakes by topic
@@ -216,12 +216,12 @@ export default function GradeSimulator() {
   };
 
   const gradeMapping = (percentage: number) => {
-    if (percentage >= 90) return "A*";
-    if (percentage >= 80) return "A";
-    if (percentage >= 70) return "B";
-    if (percentage >= 60) return "C";
-    if (percentage >= 50) return "D";
-    if (percentage >= 40) return "E";
+    if (percentage >= 83.7) return "A*";
+    if (percentage >= 68.3) return "A";
+    if (percentage >= 55.7) return "B";
+    if (percentage >= 43.3) return "C";
+    if (percentage >= 31.0) return "D";
+    if (percentage >= 18.7) return "E";
     return "U";
   };
 
@@ -296,8 +296,10 @@ export default function GradeSimulator() {
         <div className="container max-w-6xl">
           <div className="mb-8">
             <h1 className="text-4xl font-bold mb-2">Grade Uplift Simulator</h1>
-            <p className="text-muted-foreground">
-              Simulate your performance improvements and see exactly what you need to reach your target grade
+            <p className="text-muted-foreground max-w-2xl">
+              Understand how improving specific topics impacts your overall grade.
+              Adjust the sliders below to see how increasing your accuracy in weaker areas
+              could boost your predicted A-Level grade.
             </p>
           </div>
 
