@@ -135,6 +135,13 @@ export function Header() {
                 >
                   Revision Plan
                 </Link>
+                <Link
+                  to="/practice-questions"
+                  className="text-sm font-medium text-foreground hover:text-primary transition-colors py-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Practice Questions
+                </Link>
               </>
             )}
             <Link
