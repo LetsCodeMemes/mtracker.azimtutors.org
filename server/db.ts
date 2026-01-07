@@ -70,7 +70,8 @@ async function seedPapersData(client: any) {
       await client.query(
         `INSERT INTO papers (exam_board, year, paper_number, total_marks)
          VALUES ($1, $2, $3, 100)
-         ON CONFLICT DO NOTHING`,
+         ON CONFLICT (exam_board, year, paper_number)
+         DO UPDATE SET total_marks = EXCLUDED.total_marks`,
         [paper.examBoard, paper.year, paper.paperNumber]
       );
     }
