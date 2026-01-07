@@ -40,6 +40,7 @@ import {
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { RandomMistake } from "@/components/RandomMistake";
+import { FeedbackWidget } from "@/components/FeedbackWidget";
 import { topicToChapter } from "@shared/chapters";
 
 interface PerformanceStats {
