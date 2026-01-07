@@ -79,6 +79,66 @@ router.get("/stats", async (req: AuthRequest, res: Response): Promise<void> => {
 });
 
 /**
+ * Get detailed report data including paper and question breakdown
+ */
+router.get("/detailed-report", async (req: AuthRequest, res: Response) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const userId = req.user.id;
+
+    // Get papers with their questions and scores
+    const papersResult = await pool.query(
+      `SELECT
+        up.id as submission_id,
+        p.id as paper_id,
+        p.exam_board,
+        p.year,
+        p.paper_number,
+        up.marks_obtained as total_obtained,
+        up.submission_date,
+        (SELECT SUM(marks_available) FROM exam_questions WHERE paper_id = p.id) as total_available
+      FROM user_papers up
+      JOIN papers p ON up.paper_id = p.id
+      WHERE up.user_id = $1
+      ORDER BY up.submission_date DESC`,
+      [userId]
+    );
+
+    const papers = [];
+    for (const paper of papersResult.rows) {
+      const questionsResult = await pool.query(
+        `SELECT
+          eq.question_number,
+          eq.topic,
+          eq.sub_topic,
+          eq.marks_available,
+          COALESCE(qr.marks_obtained, 0) as marks_obtained
+        FROM exam_questions eq
+        LEFT JOIN question_responses qr ON eq.id = qr.question_id AND qr.user_paper_id = $1
+        WHERE eq.paper_id = $2
+        ORDER BY eq.question_number ASC`,
+        [paper.submission_id, paper.paper_id]
+      );
+
+      papers.push({
+        ...paper,
+        questions: questionsResult.rows
+      });
+    }
+
+    res.json({
+      papers
+    });
+  } catch (error) {
+    console.error("Detailed report error:", error);
+    res.status(500).json({ error: "Failed to fetch detailed report" });
+  }
+});
+
+/**
  * Get user's papers with detailed scores
  */
 router.get("/papers", async (req: AuthRequest, res: Response) => {
