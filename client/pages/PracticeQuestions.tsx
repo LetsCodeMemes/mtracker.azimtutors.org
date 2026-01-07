@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth";
+import { Link } from "react-router-dom";
 import {
   Lightbulb,
   BookOpen,
@@ -11,6 +12,7 @@ import {
   XCircle,
   ChevronRight,
   Loader,
+  Sparkles,
 } from "lucide-react";
 
 interface PracticeQuestion {
@@ -34,7 +36,8 @@ interface QuestionSet {
 }
 
 export default function PracticeQuestions() {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
+  const isPremium = user?.plan_type === 'premium';
   const [topics, setTopics] = useState<string[]>([]);
   const [selectedTopic, setSelectedTopic] = useState<string>("");
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>("mixed");
@@ -176,6 +179,23 @@ export default function PracticeQuestions() {
                   Master each topic with AI-generated practice questions tailored to your learning level
                 </p>
               </div>
+
+              {!isPremium && (
+                <Card className="p-4 mb-8 bg-gradient-to-r from-amber-50 to-amber-100 border-amber-200">
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <Sparkles className="w-5 h-5 text-amber-600" />
+                      <div>
+                        <p className="font-semibold text-amber-900 text-sm">Upgrade to Premium</p>
+                        <p className="text-xs text-amber-800">Get unlimited AI questions and detailed explanations</p>
+                      </div>
+                    </div>
+                    <Button size="sm" variant="default" className="bg-amber-600 hover:bg-amber-700" asChild>
+                      <Link to="/premium">Upgrade</Link>
+                    </Button>
+                  </div>
+                </Card>
+              )}
 
               {/* Difficulty Selection */}
               <Card className="p-6 mb-8 bg-white border border-slate-200">
