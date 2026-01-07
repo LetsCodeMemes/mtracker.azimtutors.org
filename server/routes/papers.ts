@@ -96,13 +96,24 @@ router.post(
           );
         } else {
           // Check user's plan limit (only for new submissions)
-          const planResult = await client.query(
+          let planResult = await client.query(
             `SELECT max_papers, papers_submitted FROM user_plans WHERE user_id = $1`,
             [req.user.id]
           );
 
-          const plan = planResult.rows[0];
-          if (plan && plan.papers_submitted >= plan.max_papers) {
+          let plan = planResult.rows[0];
+
+          // Create plan if it doesn't exist (backward compatibility)
+          if (!plan) {
+            await client.query(
+              `INSERT INTO user_plans (user_id, plan_type, max_papers, papers_submitted)
+               VALUES ($1, 'free', 3, 0)`,
+              [req.user.id]
+            );
+            plan = { max_papers: 3, papers_submitted: 0 };
+          }
+
+          if (plan.papers_submitted >= plan.max_papers) {
             return res.status(403).json({
               error: "Paper limit reached",
               message: `You've reached the ${plan.max_papers} paper limit for your plan. Upgrade to Premium for unlimited papers.`,
