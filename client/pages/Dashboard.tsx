@@ -37,8 +37,16 @@ import {
   Sparkles,
   BarChart3,
   FileText,
+  Settings,
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { RandomMistake } from "@/components/RandomMistake";
 import { FeedbackWidget } from "@/components/FeedbackWidget";
 import { topicToChapter } from "@shared/chapters";
@@ -95,7 +103,15 @@ export default function Dashboard() {
   const [plan, setPlan] = useState<UserPlan | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [thresholds, setThresholds] = useState(() => {
+    const saved = localStorage.getItem("heatmap-thresholds");
+    return saved ? JSON.parse(saved) : { strong: 80, shaky: 60 };
+  });
   const isPremium = user?.plan_type === 'premium';
+
+  useEffect(() => {
+    localStorage.setItem("heatmap-thresholds", JSON.stringify(thresholds));
+  }, [thresholds]);
 
   useEffect(() => {
     fetchDashboardData();
@@ -426,19 +442,6 @@ export default function Dashboard() {
               </h2>
 
               <div className="space-y-5">
-                {/* % of syllabus mastered */}
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <label className="text-sm font-semibold text-foreground">
-                      Syllabus Mastered
-                    </label>
-                    <span className="text-sm font-bold text-primary">
-                      {Math.round((overallScore / 90) * 100)}%
-                    </span>
-                  </div>
-                  <Progress value={Math.min((overallScore / 90) * 100, 100)} className="h-2" />
-                </div>
-
                 {/* Topics left before A* */}
                 <div className="bg-muted/50 p-4 rounded-lg">
                   <p className="text-sm font-semibold mb-2">Topics Left Before A*</p>
@@ -479,20 +482,59 @@ export default function Dashboard() {
 
             {/* Topic Heatmap */}
             <Card className="p-6">
-              <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-                <BarChart3 className="h-5 w-5 text-primary" />
-                Topic Performance Heatmap
-              </h2>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold flex items-center gap-2">
+                  <BarChart3 className="h-5 w-5 text-primary" />
+                  Topic Performance Heatmap
+                </h2>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <Settings className="h-4 w-4 text-muted-foreground" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-64">
+                    <div className="space-y-4">
+                      <h4 className="font-medium leading-none">Threshold Settings</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Customize the accuracy thresholds for the heatmap colors.
+                      </p>
+                      <div className="grid gap-4">
+                        <div className="grid grid-cols-3 items-center gap-4">
+                          <Label htmlFor="strong" className="text-xs">Strong (%)</Label>
+                          <Input
+                            id="strong"
+                            type="number"
+                            className="col-span-2 h-8"
+                            value={thresholds.strong}
+                            onChange={(e) => setThresholds({ ...thresholds, strong: parseInt(e.target.value) || 0 })}
+                          />
+                        </div>
+                        <div className="grid grid-cols-3 items-center gap-4">
+                          <Label htmlFor="shaky" className="text-xs">Shaky (%)</Label>
+                          <Input
+                            id="shaky"
+                            type="number"
+                            className="col-span-2 h-8"
+                            value={thresholds.shaky}
+                            onChange={(e) => setThresholds({ ...thresholds, shaky: parseInt(e.target.value) || 0 })}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
 
               <div className="grid grid-cols-2 gap-2 max-h-60 overflow-y-auto">
                 {stats.topics.map((topic) => {
                   let bgColor = "bg-red-100";
                   let textColor = "text-red-700";
 
-                  if (topic.accuracy >= 80) {
+                  if (topic.accuracy >= thresholds.strong) {
                     bgColor = "bg-green-100";
                     textColor = "text-green-700";
-                  } else if (topic.accuracy >= 60) {
+                  } else if (topic.accuracy >= thresholds.shaky) {
                     bgColor = "bg-yellow-100";
                     textColor = "text-yellow-700";
                   }
@@ -500,7 +542,7 @@ export default function Dashboard() {
                   return (
                     <div
                       key={topic.topic}
-                      className={`p-3 rounded-lg ${bgColor} ${textColor} text-center relative overflow-hidden`}
+                      className={`p-3 rounded-lg ${bgColor} ${textColor} text-center relative overflow-hidden transition-colors duration-300`}
                     >
                       <p className="text-xs font-semibold line-clamp-1">{topic.topic}</p>
                       <p className="text-lg font-bold">{topic.accuracy}%</p>
@@ -517,15 +559,15 @@ export default function Dashboard() {
               <div className="mt-4 flex items-center gap-4 text-xs">
                 <div className="flex items-center gap-2">
                   <div className="h-4 w-4 rounded bg-green-100" />
-                  <span>Strong (80%+)</span>
+                  <span>Strong ({thresholds.strong}%+)</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="h-4 w-4 rounded bg-yellow-100" />
-                  <span>Shaky (60-79%)</span>
+                  <span>Shaky ({thresholds.shaky}-{thresholds.strong - 1}%)</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="h-4 w-4 rounded bg-red-100" />
-                  <span>Weak (&lt;60%)</span>
+                  <span>Weak (&lt;{thresholds.shaky}%)</span>
                 </div>
               </div>
             </Card>
