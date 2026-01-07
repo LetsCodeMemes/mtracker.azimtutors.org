@@ -338,6 +338,9 @@ export function getExamQuestions(
   if (examBoard === "Edexcel" && year === 2023) {
     return edexcelALevelMaths2023.filter((q) => q.paperNumber === paperNumber);
   }
+  if (examBoard === "Edexcel" && year === 2018) {
+    return edexcelALevelMaths2018.filter((q) => q.paperNumber === paperNumber);
+  }
   return [];
 }
 
