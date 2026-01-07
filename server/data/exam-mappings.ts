@@ -12,6 +12,7 @@ export interface ExamQuestion {
   questionNumber: number;
   topic: string;
   subTopic?: string;
+  chapterId?: string;
   marksAvailable: number;
   difficultyLevel?: "easy" | "medium" | "hard";
 }
