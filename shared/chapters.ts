@@ -68,4 +68,5 @@ export const topicToChapter: Record<string, string> = {
   "Probability": "s1_c5",
   "Statistics": "s1_c6",
   "Mechanics": "m1_c3",
+  "Exponentials and Logarithms": "p1_c14",
 };
