@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/lib/auth";
-import { Download, FileText, ArrowLeft, Loader, CheckCircle } from "lucide-react";
+import { Download, FileText, ArrowLeft, Loader, CheckCircle, BarChart3, ListChecks } from "lucide-react";
 import { Link } from "react-router-dom";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import { aLevelMathsChapters, topicToChapter } from "@shared/chapters";
 
 interface PerformanceStats {
   overallScore: number;
@@ -20,9 +21,28 @@ interface PerformanceStats {
   }>;
 }
 
+interface PaperBreakdown {
+  submission_id: number;
+  paper_id: number;
+  exam_board: string;
+  year: number;
+  paper_number: number;
+  total_obtained: number;
+  total_available: number;
+  submission_date: string;
+  questions: Array<{
+    question_number: number;
+    topic: string;
+    sub_topic: string;
+    marks_available: number;
+    marks_obtained: number;
+  }>;
+}
+
 export default function ExportData() {
   const { user, token } = useAuth();
   const [stats, setStats] = useState<PerformanceStats | null>(null);
+  const [detailedData, setDetailedData] = useState<{ papers: PaperBreakdown[] } | null>(null);
   const [loading, setLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
   const reportRef = useRef<HTMLDivElement>(null);
@@ -33,12 +53,20 @@ export default function ExportData() {
 
   const fetchData = async () => {
     try {
-      const response = await fetch("/api/performance/stats", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setStats(data);
+      const [statsRes, detailedRes] = await Promise.all([
+        fetch("/api/performance/stats", {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        fetch("/api/performance/detailed-report", {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+      ]);
+
+      if (statsRes.ok) {
+        setStats(await statsRes.json());
+      }
+      if (detailedRes.ok) {
+        setDetailedData(await detailedRes.json());
       }
     } catch (err) {
       console.error(err);
@@ -52,18 +80,23 @@ export default function ExportData() {
     setIsGenerating(true);
 
     try {
+      const pdf = new jsPDF("p", "mm", "a4");
       const canvas = await html2canvas(reportRef.current, {
         scale: 2,
         useCORS: true,
         logging: false,
       });
+
       const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("p", "mm", "a4");
       const imgProps = pdf.getImageProperties(imgData);
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-      
+
+      // If height is more than one page, we might need to split it
+      // For now, let's just add one long page or use multiple captures if needed
+      // Simple approach: add image to first page
       pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+
       pdf.save(`AzimTutors_Report_${user?.first_name}_${user?.last_name}.pdf`);
     } catch (err) {
       console.error("Failed to generate PDF:", err);
@@ -140,7 +173,7 @@ export default function ExportData() {
                 <p className="text-4xl font-bold text-slate-900">{Math.round(stats?.overallScore || 0)}%</p>
               </div>
               <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Predicted Grade</p>
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Working at Grade</p>
                 <p className="text-4xl font-bold text-primary">{gradeMapping(stats?.overallScore || 0)}</p>
               </div>
               <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
@@ -149,26 +182,86 @@ export default function ExportData() {
               </div>
             </div>
 
-            {/* Topic Breakdown */}
+            {/* Topic Breakdown grouped by Category */}
             <div className="mb-12">
               <h2 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
-                <FileText className="h-5 w-5 text-primary" />
+                <BarChart3 className="h-5 w-5 text-primary" />
                 Topic Performance Breakdown
               </h2>
-              <div className="space-y-4">
-                {stats?.topics.map((topic) => (
-                  <div key={topic.topic} className="p-4 bg-white border border-slate-100 rounded-xl">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="font-semibold text-slate-700">{topic.topic}</span>
-                      <span className={`text-sm font-bold ${topic.accuracy >= 70 ? 'text-emerald-600' : topic.accuracy >= 50 ? 'text-amber-600' : 'text-rose-600'}`}>
-                        {Math.round(topic.accuracy)}%
-                      </span>
+
+              <div className="space-y-8">
+                {["Pure", "Statistics", "Mechanics"].map(category => {
+                  const categoryTopics = stats?.topics.filter(t => {
+                    const chapterId = topicToChapter[t.topic];
+                    const chapter = aLevelMathsChapters.find(c => c.id === chapterId);
+                    return chapter?.category === category || (category === "Pure" && !chapter); // Default to Pure if not found
+                  }) || [];
+
+                  if (categoryTopics.length === 0) return null;
+
+                  return (
+                    <div key={category} className="space-y-4">
+                      <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest px-2">{category}</h3>
+                      <div className="space-y-3">
+                        {categoryTopics.map((topic) => (
+                          <div key={topic.topic} className="p-4 bg-white border border-slate-100 rounded-xl shadow-sm">
+                            <div className="flex justify-between items-center mb-2">
+                              <span className="font-semibold text-slate-700">{topic.topic}</span>
+                              <span className={`text-sm font-bold ${topic.accuracy >= 70 ? 'text-emerald-600' : topic.accuracy >= 50 ? 'text-amber-600' : 'text-rose-600'}`}>
+                                {Math.round(topic.accuracy)}%
+                              </span>
+                            </div>
+                            <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                              <div
+                                className={`h-full transition-all ${topic.accuracy >= 70 ? 'bg-emerald-500' : topic.accuracy >= 50 ? 'bg-amber-500' : 'bg-rose-500'}`}
+                                style={{ width: `${topic.accuracy}%` }}
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                    <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                      <div 
-                        className={`h-full transition-all ${topic.accuracy >= 70 ? 'bg-emerald-500' : topic.accuracy >= 50 ? 'bg-amber-500' : 'bg-rose-500'}`}
-                        style={{ width: `${topic.accuracy}%` }}
-                      />
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Detailed Paper Breakdown */}
+            <div className="mb-12 pt-8 border-t border-slate-100">
+              <h2 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                <ListChecks className="h-5 w-5 text-primary" />
+                Individual Paper Breakdown
+              </h2>
+              <div className="space-y-8">
+                {detailedData?.papers.map((paper) => (
+                  <div key={paper.submission_id} className="bg-slate-50/50 p-6 rounded-2xl border border-slate-100">
+                    <div className="flex justify-between items-center mb-6">
+                      <div>
+                        <h3 className="text-lg font-bold text-slate-900">
+                          {paper.exam_board} {paper.year} - Paper {paper.paper_number}
+                        </h3>
+                        <p className="text-sm text-slate-500">Submitted: {new Date(paper.submission_date).toLocaleDateString()}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-2xl font-bold text-primary">{Math.round((paper.total_obtained / paper.total_available) * 100)}%</p>
+                        <p className="text-xs text-slate-500 uppercase font-bold">{paper.total_obtained} / {paper.total_available} marks</p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {paper.questions.map((q) => (
+                        <div key={q.question_number} className="bg-white p-3 rounded-lg border border-slate-100 flex justify-between items-center">
+                          <div className="flex flex-col">
+                            <span className="text-xs font-bold text-slate-400 uppercase">Q{q.question_number}</span>
+                            <span className="text-[10px] text-slate-500 truncate max-w-[80px]">{q.topic}</span>
+                          </div>
+                          <div className="text-right">
+                            <span className={`text-sm font-bold ${q.marks_obtained === q.marks_available ? 'text-emerald-600' : q.marks_obtained > 0 ? 'text-amber-600' : 'text-slate-400'}`}>
+                              {q.marks_obtained}/{q.marks_available}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 ))}
