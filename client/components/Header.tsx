@@ -49,6 +49,9 @@ export function Header() {
               <Link to="/practice-questions" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
                 Practice Questions
               </Link>
+              <Link to="/premium" className="text-sm font-medium text-primary hover:opacity-80 transition-opacity font-bold">
+                Premium
+              </Link>
             </>
           )}
           <Link to="/features" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
@@ -141,6 +144,13 @@ export function Header() {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Practice Questions
+                </Link>
+                <Link
+                  to="/premium"
+                  className="text-sm font-bold text-primary hover:opacity-80 transition-opacity py-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Premium
                 </Link>
               </>
             )}
