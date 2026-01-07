@@ -86,6 +86,14 @@ const App = () => (
             }
           />
           <Route
+            path="/practice-questions"
+            element={
+              <ProtectedRoute>
+                <PracticeQuestions />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/profile"
             element={
               <ProtectedRoute>
