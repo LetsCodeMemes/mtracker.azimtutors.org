@@ -4,6 +4,7 @@ import { persist } from "zustand/middleware";
 export interface User {
   id: number;
   email: string;
+  username: string;
   first_name: string;
   last_name: string;
   subject: string;
@@ -48,6 +49,7 @@ export const useAuth = create<AuthState>()(
 
 export async function signupClient(
   email: string,
+  username: string,
   password: string,
   firstName: string,
   lastName: string,
@@ -58,6 +60,7 @@ export async function signupClient(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       email,
+      username,
       password,
       firstName,
       lastName,
