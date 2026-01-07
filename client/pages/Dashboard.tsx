@@ -233,25 +233,20 @@ export default function Dashboard() {
 
   // Calculate exam readiness metrics
   const sortedTopics = [...stats.topics].sort((a, b) => b.accuracy - a.accuracy);
-  const weakestTopics = [...stats.topics].sort((a, b) => a.accuracy - b.accuracy).slice(0, 3);
+
+  // Weakest topics (lowest percentage when attempted, exclude 0%)
+  const weakestTopics = stats.topics
+    .filter((t) => t.marks_available > 0 && parseFloat(t.accuracy as any) > 0)
+    .sort((a, b) => a.accuracy - b.accuracy)
+    .slice(0, 5);
+
   const strongTopics = sortedTopics.slice(0, 3);
-  
+
   // Topics left before A* (90% required)
   const topicsNeedingWork = stats.topics.filter((t) => t.accuracy < 90).length;
-  
-  // Predicted grade based on average performance
-  const predictedGrade = calculateGrade(overallScore);
-  
-  // Weakest 10% of content (bottom performing topics)
-  const totalQuestions = stats.topics.reduce((sum, t) => sum + t.marks_available, 0);
-  let cumulativeMarks = 0;
-  const weakest10Percent = stats.topics
-    .sort((a, b) => a.accuracy - b.accuracy)
-    .filter((topic) => {
-      if (cumulativeMarks >= totalQuestions * 0.1) return false;
-      cumulativeMarks += topic.marks_available;
-      return true;
-    });
+
+  // Critical topics (5 weakest attempted topics)
+  const criticalTopics = weakestTopics;
 
   // Grade distribution
   const gradeDistribution = [
