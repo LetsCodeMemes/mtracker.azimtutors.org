@@ -107,6 +107,9 @@ const questionTemplates: Record<string, PracticeQuestion[]> = {
         ],
         answer: "θ = 30°",
       },
+      markScheme: [
+        "B1: Correct angle of 30 degrees",
+      ]
     },
     {
       id: "trig_2",
@@ -125,8 +128,12 @@ const questionTemplates: Record<string, PracticeQuestion[]> = {
           "π/3 × (180/π) = 180/3",
           "= 60 degrees",
         ],
-        answer: "60°",
+        answer: "60",
       },
+      markScheme: [
+        "M1: Attempt to multiply by 180/pi",
+        "A1: Correct answer of 60 degrees"
+      ]
     },
     {
       id: "trig_3",
