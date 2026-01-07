@@ -13,6 +13,7 @@ export interface AuthUser {
   first_name: string;
   last_name: string;
   subject: string;
+  is_leaderboard_public: boolean;
 }
 
 export interface AuthResponse {
@@ -95,7 +96,7 @@ export async function signupUser(
     const result = await client.query(
       `INSERT INTO users (email, username, password_hash, first_name, last_name, subject)
        VALUES ($1, $2, $3, $4, $5, $6)
-       RETURNING id, email, username, first_name, last_name, subject`,
+       RETURNING id, email, username, first_name, last_name, subject, is_leaderboard_public`,
       [email, username, passwordHash, firstName, lastName, subject]
     );
 
@@ -177,6 +178,7 @@ export async function loginUser(
       first_name: user.first_name,
       last_name: user.last_name,
       subject: user.subject,
+      is_leaderboard_public: user.is_leaderboard_public,
     };
 
     const token = generateToken(authUser);
