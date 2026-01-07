@@ -38,7 +38,7 @@ import {
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { RandomMistake } from "@/components/RandomMistake";
-import { topicToChapter } from "@/shared/chapters";
+import { topicToChapter } from "@shared/chapters";
 
 interface PerformanceStats {
   overallScore: number;
