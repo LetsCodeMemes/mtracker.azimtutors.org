@@ -47,5 +47,8 @@ export function createServer() {
   // AI Questions routes
   app.use("/api/ai", aiQuestionsRouter);
 
+  // Notifications routes
+  app.use("/api/notifications", notificationsRouter);
+
   return app;
 }
