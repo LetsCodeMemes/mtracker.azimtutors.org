@@ -5,6 +5,7 @@ import { handleDemo } from "./routes/demo";
 import { authRouter } from "./routes/auth";
 import { papersRouter } from "./routes/papers";
 import { performanceRouter } from "./routes/performance";
+import { gamificationRouter } from "./routes/gamification";
 import { initializeDatabase } from "./db";
 
 export function createServer() {
