@@ -4,18 +4,7 @@
  * Designed to scale for multiple subjects (Maths, Physics, Economics, etc.)
  */
 
-export interface ExamQuestion {
-  id: string;
-  examBoard: string;
-  year: number;
-  paperNumber: number;
-  questionNumber: number;
-  topic: string;
-  subTopic?: string;
-  chapterId?: string;
-  marksAvailable: number;
-  difficultyLevel?: "easy" | "medium" | "hard";
-}
+import { ExamQuestion } from "./types";
 
 import {
   edexcelALevelMaths2018_P2,
