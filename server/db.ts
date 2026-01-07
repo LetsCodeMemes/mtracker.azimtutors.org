@@ -183,6 +183,13 @@ export async function initializeDatabase() {
       console.log("is_leaderboard_public column already exists or error adding it");
     }
 
+    // Migration: Add username to users if it doesn't exist
+    try {
+      await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS username VARCHAR(100) UNIQUE`);
+    } catch (e) {
+      console.log("username column already exists or error adding it");
+    }
+
     // User papers (submission tracking)
     await client.query(`
       CREATE TABLE IF NOT EXISTS user_papers (
