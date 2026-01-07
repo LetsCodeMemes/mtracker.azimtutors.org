@@ -35,6 +35,7 @@ import {
   Loader,
   Sparkles,
   BarChart3,
+  FileText,
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { RandomMistake } from "@/components/RandomMistake";
@@ -231,12 +232,20 @@ export default function Dashboard() {
                   A Level Edexcel Maths - Data-driven insights for your exam success
                 </p>
               </div>
-              <Button size="lg" asChild className="gap-2">
-                <Link to="/add-paper">
-                  <Plus className="h-4 w-4" />
-                  Add Past Paper
-                </Link>
-              </Button>
+              <div className="flex items-center gap-3">
+                <Button variant="outline" size="lg" asChild className="gap-2">
+                  <Link to="/export-data">
+                    <FileText className="h-4 w-4" />
+                    Export for Tutor
+                  </Link>
+                </Button>
+                <Button size="lg" asChild className="gap-2">
+                  <Link to="/add-paper">
+                    <Plus className="h-4 w-4" />
+                    Add Past Paper
+                  </Link>
+                </Button>
+              </div>
             </div>
           </div>
         </div>
