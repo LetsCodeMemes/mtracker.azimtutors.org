@@ -39,5 +39,8 @@ export function createServer() {
   // Performance and analytics routes
   app.use("/api/performance", performanceRouter);
 
+  // Gamification routes
+  app.use("/api/gamification", gamificationRouter);
+
   return app;
 }
