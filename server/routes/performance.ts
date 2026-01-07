@@ -182,9 +182,9 @@ router.get("/progress", async (req: AuthRequest, res: Response) => {
     const result = await pool.query(
       `SELECT
         DATE_TRUNC('month', up.submission_date)::date as month,
-        ROUND((AVG(CAST(up.marks_obtained AS FLOAT) /
-          (SELECT COALESCE(SUM(marks_available), 100) FROM exam_questions WHERE paper_id = up.paper_id)) * 100)::NUMERIC, 1) as avg_score
+        ROUND((AVG(CAST(up.marks_obtained AS FLOAT) / p.total_marks) * 100)::NUMERIC, 1) as avg_score
       FROM user_papers up
+      JOIN papers p ON up.paper_id = p.id
       WHERE up.user_id = $1
       GROUP BY DATE_TRUNC('month', up.submission_date)
       ORDER BY month ASC`,
