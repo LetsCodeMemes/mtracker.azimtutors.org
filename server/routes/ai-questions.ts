@@ -253,6 +253,182 @@ const questionTemplates: Record<string, PracticeQuestion[]> = {
         answer: "(x - 2)² + (y - 3)² = 25",
       },
     },
+    {
+      id: "cg_3",
+      topic: "Coordinate Geometry",
+      difficulty: "hard",
+      question:
+        "Find the points of intersection of the line y = 2x + 1 and the circle x² + y² = 5",
+      hints: [
+        "Substitute y = 2x + 1 into the circle equation",
+        "Solve the resulting quadratic equation for x",
+        "Find corresponding y values",
+      ],
+      solutions: {
+        steps: [
+          "Substitute y: x² + (2x + 1)² = 5",
+          "Expand: x² + 4x² + 4x + 1 = 5",
+          "Simplify: 5x² + 4x - 4 = 0",
+          "Solve for x: x = [-4 ± √(16 - 4(5)(-4))] / (2*5)",
+          "x = (-4 ± √96) / 10",
+        ],
+        answer: "x ≈ 0.58, y ≈ 2.16 and x ≈ -1.38, y ≈ -1.76",
+      },
+    },
+  ],
+
+  Vectors: [
+    {
+      id: "vec_1",
+      topic: "Vectors",
+      difficulty: "easy",
+      question: "If a = 3i + 4j and b = i - 2j, find a + b",
+      hints: ["Add the i components", "Add the j components", "Combine results"],
+      solutions: {
+        steps: [
+          "a + b = (3+1)i + (4-2)j",
+          "a + b = 4i + 2j",
+        ],
+        answer: "4i + 2j",
+      },
+    },
+    {
+      id: "vec_2",
+      topic: "Vectors",
+      difficulty: "medium",
+      question: "Find the magnitude of the vector v = 5i - 12j",
+      hints: ["Magnitude |v| = √(x² + y²)", "x = 5, y = -12", "Calculate"],
+      solutions: {
+        steps: [
+          "|v| = √(5² + (-12)²)",
+          "|v| = √(25 + 144)",
+          "|v| = √169 = 13",
+        ],
+        answer: "13",
+      },
+    },
+  ],
+
+  Probability: [
+    {
+      id: "prob_1",
+      topic: "Probability",
+      difficulty: "easy",
+      question: "If P(A) = 0.3 and P(B) = 0.4, and A and B are independent, find P(A ∩ B)",
+      hints: ["For independent events, P(A ∩ B) = P(A) × P(B)", "Multiply 0.3 by 0.4"],
+      solutions: {
+        steps: [
+          "Since independent: P(A ∩ B) = P(A) × P(B)",
+          "P(A ∩ B) = 0.3 × 0.4",
+          "P(A ∩ B) = 0.12",
+        ],
+        answer: "0.12",
+      },
+    },
+    {
+      id: "prob_2",
+      topic: "Probability",
+      difficulty: "medium",
+      question: "In a box of 10 chocolates, 3 are dark and 7 are milk. Two are picked without replacement. What is the probability both are dark?",
+      hints: [
+        "First pick: 3/10",
+        "Second pick (if first was dark): 2/9",
+        "Multiply the probabilities",
+      ],
+      solutions: {
+        steps: [
+          "P(1st dark) = 3/10",
+          "P(2nd dark | 1st dark) = 2/9",
+          "P(both dark) = 3/10 × 2/9",
+          "P = 6/90 = 1/15",
+        ],
+        answer: "1/15",
+      },
+    },
+  ],
+
+  Statistics: [
+    {
+      id: "stat_1",
+      topic: "Statistics",
+      difficulty: "easy",
+      question: "Find the mean of the data set: 5, 8, 12, 15, 20",
+      hints: ["Sum all values", "Divide by the number of values (5)"],
+      solutions: {
+        steps: [
+          "Sum = 5 + 8 + 12 + 15 + 20 = 60",
+          "Mean = 60 / 5",
+          "Mean = 12",
+        ],
+        answer: "12",
+      },
+    },
+  ],
+
+  Mechanics: [
+    {
+      id: "mech_1",
+      topic: "Mechanics",
+      difficulty: "easy",
+      question: "A car accelerates from rest to 20m/s in 5 seconds. What is its acceleration?",
+      hints: ["Use v = u + at", "u = 0, v = 20, t = 5", "Solve for a"],
+      solutions: {
+        steps: [
+          "v = u + at",
+          "20 = 0 + a(5)",
+          "a = 20 / 5 = 4 m/s²",
+        ],
+        answer: "4 m/s²",
+      },
+    },
+    {
+      id: "mech_2",
+      topic: "Mechanics",
+      difficulty: "medium",
+      question: "A block of mass 5kg is pulled along a smooth horizontal surface by a force of 15N. What is the acceleration?",
+      hints: ["Use F = ma", "F = 15, m = 5", "Solve for a"],
+      solutions: {
+        steps: [
+          "F = ma",
+          "15 = 5a",
+          "a = 3 m/s²",
+        ],
+        answer: "3 m/s²",
+      },
+    },
+  ],
+
+  "Exponentials and Logarithms": [
+    {
+      id: "log_1",
+      topic: "Exponentials and Logarithms",
+      difficulty: "easy",
+      question: "Solve for x: log₂(x) = 5",
+      hints: ["Convert to exponential form: x = 2⁵", "Calculate 2 × 2 × 2 × 2 × 2"],
+      solutions: {
+        steps: [
+          "log₂(x) = 5",
+          "x = 2⁵",
+          "x = 32",
+        ],
+        answer: "x = 32",
+      },
+    },
+    {
+      id: "log_2",
+      topic: "Exponentials and Logarithms",
+      difficulty: "medium",
+      question: "Solve for x: 3²ˣ = 81",
+      hints: ["Write 81 as a power of 3: 81 = 3⁴", "Equate the exponents: 2x = 4"],
+      solutions: {
+        steps: [
+          "3²ˣ = 3⁴",
+          "2x = 4",
+          "x = 2",
+        ],
+        answer: "x = 2",
+      },
+    },
   ],
 
   Functions: [
