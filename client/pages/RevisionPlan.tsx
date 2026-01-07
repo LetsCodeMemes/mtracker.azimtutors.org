@@ -3,6 +3,7 @@ import { Footer } from "@/components/Footer";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import {
   Loader,
   AlertCircle,
@@ -18,6 +19,7 @@ import {
 
 import { aLevelMathsChapters, Chapter } from "@shared/chapters";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Progress } from "@/components/ui/progress";
 import {
   Tabs,
   TabsContent,
