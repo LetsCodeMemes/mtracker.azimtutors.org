@@ -158,14 +158,18 @@ export async function initializeDatabase() {
     `);
 
     // Migration: Add chapter_id to exam_questions if it doesn't exist
-    await client.query(`
-      DO $$
-      BEGIN
-        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='exam_questions' AND column_name='chapter_id') THEN
-          ALTER TABLE exam_questions ADD COLUMN chapter_id VARCHAR(50);
-        END IF;
-      END $$;
-    `);
+    try {
+      await client.query(`ALTER TABLE exam_questions ADD COLUMN IF NOT EXISTS chapter_id VARCHAR(50)`);
+    } catch (e) {
+      console.log("chapter_id column already exists or error adding it");
+    }
+
+    // Migration: Add is_leaderboard_public to users if it doesn't exist
+    try {
+      await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS is_leaderboard_public BOOLEAN DEFAULT true`);
+    } catch (e) {
+      console.log("is_leaderboard_public column already exists or error adding it");
+    }
 
     // User papers (submission tracking)
     await client.query(`
