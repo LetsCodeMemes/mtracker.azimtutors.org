@@ -4,6 +4,7 @@ import {
   edexcelALevelMaths2023,
   edexcelALevelMaths2018,
 } from "./data/exam-mappings";
+import { topicToChapter } from "./data/chapters";
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
