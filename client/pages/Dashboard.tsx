@@ -48,7 +48,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RandomMistake } from "@/components/RandomMistake";
-import { FeedbackWidget } from "@/components/FeedbackWidget";
+import FeedbackWidget from "@/components/FeedbackWidget";
 import { topicToChapter } from "@shared/chapters";
 
 interface PerformanceStats {
