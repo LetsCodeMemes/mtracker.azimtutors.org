@@ -65,15 +65,17 @@ async function seedPapersData(client: any) {
       const paperId = paperMap.get(paperKey);
 
       if (paperId) {
+        const chapterId = question.chapterId || topicToChapter[question.topic] || null;
         await client.query(
-          `INSERT INTO exam_questions (paper_id, question_number, topic, sub_topic, marks_available)
-           VALUES ($1, $2, $3, $4, $5)
+          `INSERT INTO exam_questions (paper_id, question_number, topic, sub_topic, chapter_id, marks_available)
+           VALUES ($1, $2, $3, $4, $5, $6)
            ON CONFLICT DO NOTHING`,
           [
             paperId,
             question.questionNumber,
             question.topic,
             question.subTopic || null,
+            chapterId,
             question.marksAvailable,
           ]
         );
