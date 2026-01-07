@@ -254,6 +254,31 @@ router.post(
         [req.user.id, badgeId, badgeName, badgeDescription]
       );
 
+      // Send badge celebration notification if badge was newly awarded
+      if (result.rows.length > 0) {
+        const userResult = await pool.query(
+          "SELECT email FROM users WHERE id = $1",
+          [req.user.id]
+        );
+
+        if (userResult.rows.length > 0) {
+          const email = userResult.rows[0].email;
+          const isNotificationEnabled = await EmailNotificationService.isNotificationEnabled(
+            req.user.id,
+            "badge_celebration"
+          );
+
+          if (isNotificationEnabled) {
+            await EmailNotificationService.sendBadgeCelebration(
+              req.user.id,
+              email,
+              badgeName,
+              badgeDescription || "You've earned this special badge!"
+            );
+          }
+        }
+      }
+
       res.json({
         success: result.rows.length > 0,
         badge: result.rows[0] || null,
