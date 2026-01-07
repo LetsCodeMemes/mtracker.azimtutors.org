@@ -58,12 +58,15 @@ export default function AddPaper() {
   }, []);
 
   const fetchPapers = async () => {
+    setLoading(true);
     try {
       const response = await fetch("/api/papers");
       const data = await response.json();
       setPapers(data);
     } catch (err) {
       setError("Failed to load papers");
+    } finally {
+      setLoading(false);
     }
   };
 
