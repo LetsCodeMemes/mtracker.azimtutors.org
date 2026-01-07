@@ -481,12 +481,12 @@ export default function Dashboard() {
                   </p>
                 </div>
 
-                {/* Weakest 10% of content */}
-                {weakest10Percent.length > 0 && (
+                {/* Critical Topics (Weakest) */}
+                {criticalTopics.length > 0 && (
                   <div className="border-t border-border pt-4">
-                    <p className="text-sm font-semibold mb-3">Critical Topics (Weakest 10%)</p>
+                    <p className="text-sm font-semibold mb-3">Critical Topics (Weakest Attempted)</p>
                     <div className="space-y-2">
-                      {weakest10Percent.map((topic) => (
+                      {criticalTopics.map((topic) => (
                         <div
                           key={topic.topic}
                           className="flex items-center justify-between p-2 bg-destructive/5 rounded"
@@ -654,7 +654,7 @@ export default function Dashboard() {
               </Button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
               {weakestTopics.map((topic, idx) => (
                 <div
                   key={idx}
