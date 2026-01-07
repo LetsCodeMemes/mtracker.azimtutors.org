@@ -124,6 +124,7 @@ export async function initializeDatabase() {
         question_number INTEGER NOT NULL,
         topic VARCHAR(100) NOT NULL,
         sub_topic VARCHAR(100),
+        chapter_id VARCHAR(50),
         marks_available INTEGER DEFAULT 1,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         UNIQUE(paper_id, question_number)
