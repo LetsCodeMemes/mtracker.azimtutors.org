@@ -326,7 +326,9 @@ export default function RevisionPlan() {
                     Get AI-generated revision schedules tailored to your weak areas,
                     optimized study timing, and expert tips to maximize your improvement.
                   </p>
-                  <Button>Upgrade to Premium</Button>
+                  <Button asChild>
+                    <Link to="/premium">Upgrade to Premium</Link>
+                  </Button>
                 </div>
               </div>
             </Card>
