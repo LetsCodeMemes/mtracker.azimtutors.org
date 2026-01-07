@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { useAuth } from "@/lib/auth";
 import {
   BarChart,
   Bar,
@@ -85,6 +86,7 @@ interface UserPlan {
 }
 
 export default function Dashboard() {
+  const { user } = useAuth();
   const [stats, setStats] = useState<PerformanceStats | null>(null);
   const [papers, setPapers] = useState<UserPaper[]>([]);
   const [streak, setStreak] = useState<UserStreak | null>(null);
@@ -92,6 +94,7 @@ export default function Dashboard() {
   const [plan, setPlan] = useState<UserPlan | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const isPremium = user?.plan_type === 'premium';
 
   useEffect(() => {
     fetchDashboardData();
@@ -233,6 +236,14 @@ export default function Dashboard() {
                 </p>
               </div>
               <div className="flex items-center gap-3">
+                {!isPremium && (
+                  <Button variant="default" asChild className="gap-2 bg-amber-500 hover:bg-amber-600 border-none shadow-lg animate-pulse hover:animate-none">
+                    <Link to="/premium">
+                      <Sparkles className="h-4 w-4" />
+                      Upgrade to Premium
+                    </Link>
+                  </Button>
+                )}
                 <Button variant="outline" size="lg" asChild className="gap-2">
                   <Link to="/export-data">
                     <FileText className="h-4 w-4" />
