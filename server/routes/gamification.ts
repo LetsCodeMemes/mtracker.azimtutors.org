@@ -185,15 +185,35 @@ router.post(
           // Continue streak
           newCurrentStreak = (streak?.current_streak || 0) + 1;
 
-          // Award points for maintaining streak
-          const STREAK_POINTS = 50;
+          // Award points for daily sign-in/submission
+          let pointsToAward = 5;
+
+          // Milestone bonuses
+          const milestones: Record<number, number> = {
+            7: 50,
+            14: 100,
+            30: 250,
+            50: 500,
+            100: 1000
+          };
+
+          if (milestones[newCurrentStreak]) {
+            pointsToAward += milestones[newCurrentStreak];
+          }
+
           await pool.query(
             `UPDATE user_points SET total_points = total_points + $1, experience = experience + $1 WHERE user_id = $2`,
-            [STREAK_POINTS, req.user.id]
+            [pointsToAward, req.user.id]
           );
         } else {
           // Reset to 1
           newCurrentStreak = 1;
+
+          // Award base points for starting a streak
+          await pool.query(
+            `UPDATE user_points SET total_points = total_points + 5, experience = experience + 5 WHERE user_id = $1`,
+            [req.user.id]
+          );
         }
 
         // Update longest streak
@@ -508,6 +528,55 @@ router.get(
       res.json(pricing);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch pricing" });
+    }
+  }
+);
+
+/**
+ * Get leaderboard data
+ */
+router.get(
+  "/leaderboard",
+  async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+      const result = await pool.query(
+        `SELECT u.username, u.first_name, u.last_name, p.total_points, p.level
+         FROM users u
+         JOIN user_points p ON u.id = p.user_id
+         WHERE u.is_leaderboard_public = true
+         ORDER BY p.total_points DESC
+         LIMIT 50`
+      );
+
+      res.json(result.rows);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch leaderboard" });
+    }
+  }
+);
+
+/**
+ * Toggle leaderboard visibility
+ */
+router.post(
+  "/leaderboard/toggle",
+  async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+      if (!req.user) {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+      }
+
+      const { isPublic } = req.body;
+
+      const result = await pool.query(
+        `UPDATE users SET is_leaderboard_public = $1 WHERE id = $2 RETURNING is_leaderboard_public`,
+        [isPublic, req.user.id]
+      );
+
+      res.json({ success: true, isPublic: result.rows[0].is_leaderboard_public });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to toggle leaderboard preference" });
     }
   }
 );
