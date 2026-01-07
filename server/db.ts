@@ -3,7 +3,15 @@ import {
   edexcelALevelMaths2024,
   edexcelALevelMaths2023,
   edexcelALevelMaths2018,
-} from "./data/exam-mappings";
+} from "./exam-mappings";
+import {
+  edexcelALevelMaths2018_P2,
+  edexcelALevelMaths2019,
+  edexcelALevelMaths2020,
+  edexcelALevelMaths2021,
+  edexcelALevelMaths2022,
+  edexcelALevelMaths2023_Full,
+} from "./exam-mappings-full";
 import { topicToChapter } from "./data/chapters";
 
 const pool = new Pool({
@@ -17,7 +25,13 @@ async function seedPapersData(client: any) {
     const allQuestions = [
       ...edexcelALevelMaths2024,
       ...edexcelALevelMaths2023,
+      ...edexcelALevelMaths2023_Full,
+      ...edexcelALevelMaths2022,
+      ...edexcelALevelMaths2021,
+      ...edexcelALevelMaths2020,
+      ...edexcelALevelMaths2019,
       ...edexcelALevelMaths2018,
+      ...edexcelALevelMaths2018_P2,
     ];
 
     // Collect unique papers
