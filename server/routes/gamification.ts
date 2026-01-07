@@ -533,6 +533,92 @@ router.get(
 );
 
 /**
+ * Daily check-in to award points and update streak
+ */
+router.post(
+  "/daily-checkin",
+  async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+      if (!req.user) {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+      }
+
+      const today = new Date().toISOString().split("T")[0];
+
+      const result = await pool.query(
+        `SELECT last_submission_date, current_streak, longest_streak FROM user_streaks WHERE user_id = $1`,
+        [req.user.id]
+      );
+
+      let streak = result.rows[0];
+      const lastDate = streak?.last_submission_date
+        ? new Date(streak.last_submission_date).toISOString().split("T")[0]
+        : null;
+
+      if (lastDate === today) {
+        // Already checked in today
+        res.json({ success: true, message: "Already checked in today", streak });
+        return;
+      }
+
+      let newCurrentStreak = 0;
+      let newLongestStreak = streak?.longest_streak || 0;
+
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = yesterday.toISOString().split("T")[0];
+
+      if (lastDate === yesterdayStr) {
+        // Continue streak
+        newCurrentStreak = (streak?.current_streak || 0) + 1;
+      } else {
+        // Reset to 1
+        newCurrentStreak = 1;
+      }
+
+      // Milestone bonuses
+      const milestones: Record<number, number> = {
+        7: 50,
+        14: 100,
+        30: 250,
+        50: 500,
+        100: 1000
+      };
+
+      let pointsToAward = 5;
+      if (milestones[newCurrentStreak]) {
+        pointsToAward += milestones[newCurrentStreak];
+      }
+
+      // Update longest streak
+      newLongestStreak = Math.max(newCurrentStreak, newLongestStreak);
+
+      await pool.query(
+        `UPDATE user_streaks
+         SET current_streak = $1, longest_streak = $2, last_submission_date = $3, updated_at = CURRENT_TIMESTAMP
+         WHERE user_id = $4`,
+        [newCurrentStreak, newLongestStreak, today, req.user.id]
+      );
+
+      await pool.query(
+        `UPDATE user_points SET total_points = total_points + $1, experience = experience + $1 WHERE user_id = $2`,
+        [pointsToAward, req.user.id]
+      );
+
+      res.json({
+        success: true,
+        message: "Check-in successful",
+        pointsAwarded: pointsToAward,
+        streak: { current_streak: newCurrentStreak, longest_streak: newLongestStreak }
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to check in" });
+    }
+  }
+);
+
+/**
  * Get leaderboard data
  */
 router.get(
