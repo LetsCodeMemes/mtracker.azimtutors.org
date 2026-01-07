@@ -72,13 +72,22 @@ export default function PracticeQuestions() {
         }),
       });
 
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to fetch questions");
+      }
+
       const data: QuestionSet = await response.json();
-      setQuestions(data.questions);
-      setCurrentQuestionIndex(0);
-      setShowSolution(false);
-      setShowHint(false);
-      setUserAnswers({});
-      setStep("practice");
+      if (data.questions && data.questions.length > 0) {
+        setQuestions(data.questions);
+        setCurrentQuestionIndex(0);
+        setShowSolution(false);
+        setShowHint(false);
+        setUserAnswers({});
+        setStep("practice");
+      } else {
+        console.warn("No questions returned from API");
+      }
     } catch (error) {
       console.error("Failed to fetch questions:", error);
     } finally {
@@ -227,8 +236,29 @@ export default function PracticeQuestions() {
   }
 
   const currentQuestion = questions[currentQuestionIndex];
-  const isAnswered = userAnswers[currentQuestion?.id];
+  const isAnswered = currentQuestion ? userAnswers[currentQuestion.id] : false;
   const correctCount = Object.values(userAnswers).filter(Boolean).length;
+
+  if (step === "practice" && !currentQuestion) {
+    return (
+      <>
+        <Header />
+        <main className="min-h-screen bg-gradient-to-b from-slate-50 to-white flex items-center justify-center">
+          <div className="text-center p-8 bg-white rounded-xl shadow-sm border border-slate-200 max-w-md mx-auto">
+            <XCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+            <h2 className="text-xl font-bold text-slate-900 mb-2">No Questions Found</h2>
+            <p className="text-slate-600 mb-6">
+              We couldn't find any questions for {selectedTopic} at the {selectedDifficulty} level.
+            </p>
+            <Button onClick={() => setStep("select")} className="w-full">
+              Back to Topic Selection
+            </Button>
+          </div>
+        </main>
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>
