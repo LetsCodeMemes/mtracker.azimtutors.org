@@ -235,6 +235,9 @@ export async function initializeDatabase() {
     `);
 
     console.log("✅ Database schema initialized successfully");
+
+    // Seed papers and questions data
+    await seedPapersData(client);
   } finally {
     client.release();
   }
