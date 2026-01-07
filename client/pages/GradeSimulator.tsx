@@ -14,7 +14,8 @@ import {
   ResponsiveContainer,
   BarChart,
   Bar,
-  Cell,
+  ScatterChart,
+  Scatter,
 } from "recharts";
 import {
   Loader,
@@ -22,7 +23,11 @@ import {
   TrendingUp,
   Target,
   ArrowUp,
+  AlertTriangle,
+  CheckCircle,
+  Info,
 } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
 
 interface Topic {
   topic: string;
@@ -37,6 +42,75 @@ interface SimulationData {
   simulated: number;
 }
 
+interface GradeThreshold {
+  grade: string;
+  minPercentage: number;
+  target: string;
+  color: string;
+}
+
+const GRADE_THRESHOLDS: GradeThreshold[] = [
+  { grade: "A*", minPercentage: 90, target: "Outstanding", color: "bg-green-600" },
+  { grade: "A", minPercentage: 80, target: "Excellent", color: "bg-green-500" },
+  { grade: "B", minPercentage: 70, target: "Good", color: "bg-blue-500" },
+  { grade: "C", minPercentage: 60, target: "Satisfactory", color: "bg-yellow-500" },
+  { grade: "D", minPercentage: 50, target: "Pass", color: "bg-orange-500" },
+  { grade: "E", minPercentage: 40, target: "Borderline", color: "bg-red-500" },
+];
+
+// Key mistakes by topic
+const KEY_MISTAKES_BY_TOPIC: Record<string, string[]> = {
+  "Calculus": [
+    "Forgetting chain rule in composite functions",
+    "Sign errors in integration",
+    "Not checking limits in definite integrals",
+    "Miscalculating stationary points",
+    "Wrong application of product/quotient rules",
+  ],
+  "Algebra": [
+    "Expanding brackets incorrectly",
+    "Losing marks on rearrangement",
+    "Sign errors in simultaneous equations",
+    "Not simplifying final answers",
+    "Arithmetic errors in substitution",
+  ],
+  "Trigonometry": [
+    "Confusing radians and degrees",
+    "Missing negative angles in range",
+    "Incorrect use of trig identities",
+    "Rounding too early in calculations",
+    "Not checking angle values are in range",
+  ],
+  "Coordinate Geometry": [
+    "Wrong gradient formula application",
+    "Circle equation mistakes",
+    "Parametric form conversion errors",
+    "Distance formula errors",
+    "Not checking intersection conditions",
+  ],
+  "Sequences and Series": [
+    "Wrong common ratio/difference identification",
+    "Sum formula application errors",
+    "Not recognizing convergence conditions",
+    "Indexing errors in series",
+    "Forgetting domain restrictions",
+  ],
+  "Statistics": [
+    "Misidentifying distribution types",
+    "Normal approximation mistakes",
+    "Incorrect use of probability formulas",
+    "Hypothesis test errors",
+    "Confidence interval calculation mistakes",
+  ],
+  "Mechanics": [
+    "Forgetting resistance forces",
+    "Incorrect acceleration formulas",
+    "Newton's laws application errors",
+    "Energy conservation mistakes",
+    "Projectile motion calculation errors",
+  ],
+};
+
 export default function GradeSimulator() {
   const [topics, setTopics] = useState<Topic[]>([]);
   const [loading, setLoading] = useState(true);
@@ -45,6 +119,7 @@ export default function GradeSimulator() {
   const [simulationData, setSimulationData] = useState<SimulationData[]>([]);
   const [currentOverall, setCurrentOverall] = useState(0);
   const [projectedOverall, setProjectedOverall] = useState(0);
+  const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
 
   useEffect(() => {
     fetchTopicData();
@@ -64,7 +139,6 @@ export default function GradeSimulator() {
       const data = await response.json();
       setTopics(data.topics);
 
-      // Initialize improvements
       const initialImprovements: Record<string, number> = {};
       data.topics.forEach((topic: Topic) => {
         initialImprovements[topic.topic] = 0;
@@ -81,11 +155,19 @@ export default function GradeSimulator() {
     }
   };
 
+  const calculateMarksNeededForGrade = (targetGrade: string): number => {
+    const threshold = GRADE_THRESHOLDS.find((g) => g.grade === targetGrade);
+    if (!threshold) return 0;
+
+    // Estimate total marks (usually 300 for A-Level Maths)
+    const totalMarks = 300;
+    return Math.ceil((threshold.minPercentage / 100) * totalMarks);
+  };
+
   const handleImprovement = (topicName: string, value: number) => {
     const newImprovements = { ...improvements, [topicName]: value };
     setImprovements(newImprovements);
 
-    // Calculate projected overall score
     let totalCurrentMarks = 0;
     let totalPossibleMarks = 0;
     let totalProjectedMarks = 0;
@@ -93,10 +175,7 @@ export default function GradeSimulator() {
     topics.forEach((topic) => {
       const currentAccuracy = topic.marks_obtained / topic.marks_available;
       const improvement = newImprovements[topic.topic] || 0;
-      const projectedAccuracy = Math.min(
-        1,
-        currentAccuracy + improvement / 100
-      );
+      const projectedAccuracy = Math.min(1, currentAccuracy + improvement / 100);
 
       totalCurrentMarks += topic.marks_obtained;
       totalProjectedMarks += topic.marks_available * projectedAccuracy;
@@ -110,13 +189,16 @@ export default function GradeSimulator() {
 
     setProjectedOverall(newProjectedOverall);
 
-    // Create simulation data for chart
     const simData = topics.map((topic) => ({
-      topic: topic.topic.substring(0, 8), // Shorten for chart
+      topic: topic.topic.substring(0, 10),
       current: Math.round(topic.marks_obtained),
       simulated: Math.round(
         topic.marks_available *
-          Math.min(1, topic.marks_obtained / topic.marks_available + (newImprovements[topic.topic] || 0) / 100)
+          Math.min(
+            1,
+            topic.marks_obtained / topic.marks_available +
+              (newImprovements[topic.topic] || 0) / 100
+          )
       ),
     }));
     setSimulationData(simData);
@@ -130,6 +212,7 @@ export default function GradeSimulator() {
     setImprovements(initialImprovements);
     setProjectedOverall(currentOverall);
     setSimulationData([]);
+    setSelectedTopic(null);
   };
 
   const gradeMapping = (percentage: number) => {
@@ -140,6 +223,26 @@ export default function GradeSimulator() {
     if (percentage >= 50) return "D";
     if (percentage >= 40) return "E";
     return "U";
+  };
+
+  const getTopicMistakes = (topicName: string): string[] => {
+    // Check for exact match first
+    if (KEY_MISTAKES_BY_TOPIC[topicName]) {
+      return KEY_MISTAKES_BY_TOPIC[topicName];
+    }
+    // Check for partial match
+    for (const [key, mistakes] of Object.entries(KEY_MISTAKES_BY_TOPIC)) {
+      if (topicName.includes(key) || key.includes(topicName.split(" ")[0])) {
+        return mistakes;
+      }
+    }
+    return [
+      "Practice more problems",
+      "Review key formulas",
+      "Check worked examples",
+      "Try similar past paper questions",
+      "Seek tutor help if still struggling",
+    ];
   };
 
   if (loading) {
@@ -167,8 +270,7 @@ export default function GradeSimulator() {
               <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
               <h2 className="text-lg font-semibold mb-2">No Data Available</h2>
               <p className="text-muted-foreground mb-4">
-                {error ||
-                  "Submit some papers first to use the grade simulator."}
+                {error || "Submit some papers first to use the grade simulator."}
               </p>
               <Button asChild>
                 <a href="/add-paper">Add Past Paper</a>
@@ -184,67 +286,92 @@ export default function GradeSimulator() {
   const gradeDifference = projectedOverall - currentOverall;
   const currentGrade = gradeMapping(currentOverall);
   const projectedGrade = gradeMapping(projectedOverall);
+  const lowestTopic = [...topics].sort((a, b) => a.accuracy - b.accuracy)[0];
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-muted/10">
       <Header />
 
       <main className="flex-1 py-12 px-4 md:px-6">
         <div className="container max-w-6xl">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2">Grade Uplift Simulator</h1>
+            <h1 className="text-4xl font-bold mb-2">Grade Uplift Simulator</h1>
             <p className="text-muted-foreground">
-              Adjust your performance in each topic to see how it affects your overall grade
+              Simulate your performance improvements and see exactly what you need to reach your target grade
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          {/* KPI Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
             {/* Current Score */}
             <Card className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-foreground">Current Score</h3>
-                <Target className="h-5 w-5 text-muted-foreground" />
-              </div>
-              <div className="text-4xl font-bold text-primary mb-2">
-                {currentOverall}%
-              </div>
-              <div className="text-xl font-semibold text-primary">{currentGrade}</div>
+              <h3 className="text-sm text-muted-foreground font-semibold mb-4">Current Score</h3>
+              <div className="text-4xl font-bold text-primary mb-2">{currentOverall}%</div>
+              <div className="text-2xl font-bold text-amber-600">{currentGrade}</div>
+              <div className="text-xs text-muted-foreground mt-2">Across all papers</div>
             </Card>
 
             {/* Projected Score */}
-            <Card className="p-6 border-2 border-success/50 bg-success/5">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-foreground">Projected Score</h3>
-                <TrendingUp className="h-5 w-5 text-success" />
-              </div>
-              <div className="text-4xl font-bold text-success mb-2">
-                {projectedOverall}%
-              </div>
-              <div className="text-xl font-semibold text-success">
-                {projectedGrade}
-              </div>
+            <Card className="p-6 border-2 border-green-500/50 bg-green-50">
+              <h3 className="text-sm text-muted-foreground font-semibold mb-4">Projected Score</h3>
+              <div className="text-4xl font-bold text-green-600 mb-2">{projectedOverall}%</div>
+              <div className="text-2xl font-bold text-green-600">{projectedGrade}</div>
+              <div className="text-xs text-green-700 mt-2">If improvements made</div>
             </Card>
 
             {/* Improvement */}
-            <Card className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-foreground">Improvement</h3>
-                <ArrowUp className="h-5 w-5 text-accent" />
-              </div>
+            <Card className={`p-6 ${gradeDifference > 0 ? "bg-blue-50" : "bg-muted"}`}>
+              <h3 className="text-sm text-muted-foreground font-semibold mb-4">Improvement</h3>
               <div
                 className={`text-4xl font-bold mb-2 ${
-                  gradeDifference > 0 ? "text-success" : "text-muted-foreground"
+                  gradeDifference > 0 ? "text-blue-600" : "text-muted-foreground"
                 }`}
               >
                 {gradeDifference > 0 ? "+" : ""}{gradeDifference}%
               </div>
-              <div className="text-sm text-muted-foreground">
+              <div className="text-xs text-muted-foreground mt-2">
                 {gradeDifference > 0
-                  ? `${Math.abs(gradeDifference)} point improvement`
+                  ? `Grade increase: ${currentGrade} → ${projectedGrade}`
                   : "Adjust sliders to improve"}
               </div>
             </Card>
+
+            {/* Weakest Topic */}
+            <Card className="p-6 bg-orange-50">
+              <h3 className="text-sm text-muted-foreground font-semibold mb-4">Priority Topic</h3>
+              <div className="text-sm font-bold text-orange-600 mb-2">{lowestTopic.topic}</div>
+              <div className="text-2xl font-bold text-orange-600">{lowestTopic.accuracy}%</div>
+              <div className="text-xs text-orange-700 mt-2">Lowest accuracy</div>
+            </Card>
           </div>
+
+          {/* Grade Thresholds Guide */}
+          <Card className="p-6 mb-8">
+            <h2 className="text-lg font-semibold mb-4">Grade Thresholds</h2>
+            <div className="space-y-3">
+              {GRADE_THRESHOLDS.map((threshold) => (
+                <div key={threshold.grade} className="flex items-center gap-4">
+                  <div className="flex-shrink-0">
+                    <div className={`w-12 h-8 rounded ${threshold.color} flex items-center justify-center`}>
+                      <span className="text-white font-bold text-sm">{threshold.grade}</span>
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-semibold text-foreground">{threshold.target}</span>
+                      <span className="text-sm text-muted-foreground">{threshold.minPercentage}%+</span>
+                    </div>
+                    <Progress value={threshold.minPercentage} className="h-1.5" />
+                  </div>
+                  {projectedOverall >= threshold.minPercentage && currentOverall < threshold.minPercentage && (
+                    <div className="flex-shrink-0">
+                      <CheckCircle className="h-5 w-5 text-green-600" />
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </Card>
 
           {/* Simulation Chart */}
           {simulationData.length > 0 && (
@@ -262,7 +389,7 @@ export default function GradeSimulator() {
                     }}
                   />
                   <Legend />
-                  <Bar dataKey="current" fill="#991B1B" name="Current Marks" />
+                  <Bar dataKey="current" fill="#DC2626" name="Current Marks" />
                   <Bar dataKey="simulated" fill="#10B981" name="Projected Marks" />
                 </BarChart>
               </ResponsiveContainer>
@@ -273,18 +400,21 @@ export default function GradeSimulator() {
           <Card className="p-6 mb-8">
             <h2 className="text-lg font-semibold mb-6">Adjust Topic Performance</h2>
             <div className="space-y-8">
-              {topics.map((topic) => (
+              {topics.sort((a, b) => a.accuracy - b.accuracy).map((topic) => (
                 <div key={topic.topic}>
-                  <div className="flex items-center justify-between mb-3">
-                    <div>
-                      <h3 className="font-semibold text-foreground">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-foreground flex items-center gap-2">
                         {topic.topic}
+                        {topic.accuracy < 60 && (
+                          <AlertTriangle className="h-4 w-4 text-orange-600" />
+                        )}
                       </h3>
-                      <p className="text-sm text-muted-foreground">
-                        Current accuracy: {Math.round(topic.accuracy)}%
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Current: {Math.round(topic.marks_obtained)} / {topic.marks_available} marks ({Math.round(topic.accuracy)}%)
                       </p>
                     </div>
-                    <div className="text-right">
+                    <div className="text-right flex-shrink-0">
                       <div className="text-2xl font-bold text-primary">
                         {improvements[topic.topic] || 0}%
                       </div>
@@ -293,7 +423,7 @@ export default function GradeSimulator() {
                   </div>
 
                   {/* Slider */}
-                  <div className="relative pt-2">
+                  <div className="relative pt-2 mb-4">
                     <input
                       type="range"
                       min="0"
@@ -317,12 +447,76 @@ export default function GradeSimulator() {
                       <span>+20%</span>
                     </div>
                   </div>
+
+                  {/* Key Mistakes Collapse */}
+                  {improvements[topic.topic] > 0 && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                      <button
+                        onClick={() =>
+                          setSelectedTopic(
+                            selectedTopic?.topic === topic.topic ? null : topic
+                          )
+                        }
+                        className="flex items-center gap-2 text-sm font-semibold text-blue-700 w-full"
+                      >
+                        <Info className="h-4 w-4" />
+                        Common mistakes in {topic.topic}
+                      </button>
+
+                      {selectedTopic?.topic === topic.topic && (
+                        <ul className="mt-3 space-y-2 text-sm text-blue-700">
+                          {getTopicMistakes(topic.topic).map((mistake, idx) => (
+                            <li key={idx} className="flex gap-2">
+                              <span className="font-bold flex-shrink-0">•</span>
+                              <span>{mistake}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
           </Card>
 
-          {/* Reset Button */}
+          {/* Recommendations */}
+          <Card className="p-6 mb-8 border-l-4 border-l-blue-600">
+            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-blue-600" />
+              Next Steps to Reach Your Target
+            </h2>
+            <div className="space-y-3">
+              {currentGrade !== "A*" && (
+                <>
+                  <div className="p-4 bg-muted rounded-lg">
+                    <p className="font-semibold text-foreground mb-2">
+                      To reach {projectedGrade === "A*" ? "A*" : "next grade"}:
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Focus on improving {lowestTopic.topic} from {lowestTopic.accuracy}% to 80%+
+                    </p>
+                  </div>
+                  <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <p className="font-semibold text-blue-700 mb-2">💡 Strategy:</p>
+                    <ul className="text-sm text-blue-700 space-y-1">
+                      <li>• Practice 10+ questions from {lowestTopic.topic}</li>
+                      <li>• Review common mistakes in this topic</li>
+                      <li>• Work through step-by-step solutions</li>
+                      <li>• Re-attempt previous exam questions</li>
+                    </ul>
+                  </div>
+                </>
+              )}
+              {currentGrade === "A*" && (
+                <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                  <p className="font-semibold text-green-700">✨ You're at A*! Maintain consistency and practice regularly.</p>
+                </div>
+              )}
+            </div>
+          </Card>
+
+          {/* Action Buttons */}
           <div className="flex gap-3">
             <Button
               variant="outline"
