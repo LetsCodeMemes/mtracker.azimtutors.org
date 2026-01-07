@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState, useEffect } from "react";
-import { AlertCircle, CheckCircle } from "lucide-react";
+import { AlertCircle, CheckCircle, ChevronRight, Calendar, BookOpen, Zap } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
 
 interface ExamQuestion {
   id: number;
@@ -20,6 +21,12 @@ interface Paper {
   exam_board: string;
   year: number;
   paper_number: number;
+  total_marks: number;
+}
+
+interface MistakeLogEntry {
+  questionId: number;
+  mistakeType: "didnt_understand" | "misread_question" | "algebra_error" | "forgot_formula" | "time_pressure";
 }
 
 export default function AddPaper() {
@@ -32,8 +39,11 @@ export default function AddPaper() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [marks, setMarks] = useState<Record<number, number>>({});
+  const [mistakeLogs, setMistakeLogs] = useState<MistakeLogEntry[]>([]);
+  const [submissionDate, setSubmissionDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
 
-  // Fetch available papers on mount
   useEffect(() => {
     fetchPapers();
   }, []);
@@ -58,17 +68,15 @@ export default function AddPaper() {
       const data = await response.json();
       setQuestions(data);
 
-      // Initialize marks object
       const initialMarks: Record<number, number> = {};
       data.forEach((q: ExamQuestion) => {
         initialMarks[q.id] = 0;
       });
       setMarks(initialMarks);
-
+      setMistakeLogs([]);
       setStep("enter");
     } catch (err) {
       setError("Failed to load questions");
-      setLoading(false);
     } finally {
       setLoading(false);
     }
@@ -107,12 +115,25 @@ export default function AddPaper() {
       const data = await response.json();
 
       if (response.ok) {
+        // Update user streak after submission
+        try {
+          await fetch("/api/gamification/streaks/update", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
+        } catch (streakErr) {
+          console.error("Failed to update streak:", streakErr);
+        }
+
         setSuccess(true);
-        // Reset form
         setStep("select");
         setSelectedPaper(null);
         setQuestions([]);
         setMarks({});
+        setMistakeLogs([]);
         setTimeout(() => setSuccess(false), 3000);
       } else {
         setError(data.error || "Failed to submit paper");
@@ -129,18 +150,20 @@ export default function AddPaper() {
   const percentage = maxMarks > 0 ? ((totalMarks / maxMarks) * 100).toFixed(1) : 0;
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-muted/20">
       <Header />
 
       <main className="flex-1 py-12 px-4 md:px-6">
-        <div className="container max-w-4xl">
+        <div className="container max-w-5xl">
+          {/* Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2">Add Past Paper</h1>
-            <p className="text-muted-foreground">
-              Select an exam paper and enter your marks to track your progress
+            <h1 className="text-4xl font-bold mb-3">Add Past Paper</h1>
+            <p className="text-lg text-muted-foreground">
+              Submit your exam paper and track your progress across topics
             </p>
           </div>
 
+          {/* Messages */}
           {error && (
             <Card className="mb-6 p-4 border-red-200 bg-red-50">
               <div className="flex items-start gap-3">
@@ -158,134 +181,233 @@ export default function AddPaper() {
               <div className="flex items-start gap-3">
                 <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
                 <div>
-                  <h3 className="font-semibold text-green-900">Success!</h3>
+                  <h3 className="font-semibold text-green-900">Success! 🎉</h3>
                   <p className="text-sm text-green-700">
-                    Paper submitted successfully. Your dashboard has been updated.
+                    Paper submitted. Check your dashboard for insights!
                   </p>
                 </div>
               </div>
             </Card>
           )}
 
+          {/* Paper Selection Step */}
           {step === "select" && (
-            <Card className="p-6">
-              <h2 className="text-xl font-semibold mb-6">Select Exam Paper</h2>
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-2xl font-bold mb-6">Select Exam Paper</h2>
 
-              {loading ? (
-                <div className="text-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
-                  <p className="text-muted-foreground">Loading papers...</p>
-                </div>
-              ) : papers.length === 0 ? (
-                <p className="text-muted-foreground text-center py-8">
-                  No papers available
-                </p>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {papers.map((paper) => (
-                    <button
-                      key={paper.id}
-                      onClick={() => handleSelectPaper(paper)}
-                      className="p-4 border border-border rounded-lg hover:bg-card hover:border-primary transition-all text-left"
+                {loading ? (
+                  <div className="flex items-center justify-center py-16">
+                    <div className="text-center">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                      <p className="text-muted-foreground">Loading papers...</p>
+                    </div>
+                  </div>
+                ) : papers.length === 0 ? (
+                  <Card className="p-12 text-center">
+                    <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-muted-foreground">No papers available yet</p>
+                  </Card>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {papers.map((paper) => (
+                      <button
+                        key={paper.id}
+                        onClick={() => handleSelectPaper(paper)}
+                        className="group relative p-6 border border-border rounded-xl hover:border-primary hover:bg-accent hover:shadow-md transition-all duration-200 text-left overflow-hidden"
+                      >
+                        {/* Background gradient on hover */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                        
+                        <div className="relative z-10">
+                          <div className="flex items-start justify-between mb-2">
+                            <div>
+                              <div className="text-sm font-medium text-primary mb-1">
+                                {paper.exam_board}
+                              </div>
+                              <div className="font-bold text-lg text-foreground">
+                                Paper {paper.paper_number}
+                              </div>
+                            </div>
+                            <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                          </div>
+                          
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Calendar className="h-4 w-4" />
+                            <span>{paper.year}</span>
+                          </div>
+                          
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground mt-2">
+                            <span className="font-semibold text-foreground">{paper.total_marks}</span>
+                            <span>total marks</span>
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Marketing section */}
+              <Card className="p-8 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
+                <div className="flex items-start gap-4">
+                  <Zap className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
+                  <div>
+                    <h3 className="font-bold mb-2">Track Your Progress</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Each paper you submit helps us identify your weak topics and generate personalized revision recommendations.
+                    </p>
+                    <a
+                      href="https://www.azimtutors.org/tuition"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm font-semibold text-primary hover:underline"
                     >
-                      <div className="font-semibold text-foreground">
-                        {paper.exam_board} {paper.year}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        Paper {paper.paper_number}
-                      </div>
-                    </button>
-                  ))}
+                      Get A Level maths tutoring today →
+                    </a>
+                  </div>
                 </div>
-              )}
-            </Card>
+              </Card>
+            </div>
           )}
 
+          {/* Enter Marks Step */}
           {step === "enter" && selectedPaper && (
-            <Card className="p-6">
-              <div className="mb-6">
+            <div className="space-y-6">
+              {/* Back button and title */}
+              <div>
                 <button
                   onClick={() => setStep("select")}
-                  className="text-primary hover:underline text-sm flex items-center gap-1"
+                  className="text-primary hover:underline text-sm font-medium flex items-center gap-1 mb-4"
                 >
                   ← Back to select paper
                 </button>
-                <h2 className="text-xl font-semibold mt-4">
-                  {selectedPaper.exam_board} {selectedPaper.year} - Paper{" "}
-                  {selectedPaper.paper_number}
-                </h2>
+                <div>
+                  <h2 className="text-2xl font-bold">
+                    {selectedPaper.exam_board} {selectedPaper.year}
+                  </h2>
+                  <p className="text-muted-foreground">Paper {selectedPaper.paper_number}</p>
+                </div>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Questions list */}
-                <div className="space-y-4">
-                  {questions.map((question) => (
-                    <Card
-                      key={question.id}
-                      className="p-4 border border-border"
-                    >
-                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                        <div className="flex-1">
-                          <div className="font-semibold text-foreground">
-                            Question {question.question_number}
-                          </div>
-                          <div className="text-sm text-muted-foreground">
-                            {question.topic}
-                            {question.sub_topic && ` - ${question.sub_topic}`}
-                          </div>
-                          <div className="text-xs text-muted-foreground mt-1">
-                            Max marks: {question.marks_available}
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          <Label htmlFor={`q-${question.id}`} className="whitespace-nowrap">
-                            Marks obtained:
-                          </Label>
-                          <Input
-                            id={`q-${question.id}`}
-                            type="number"
-                            min="0"
-                            max={question.marks_available}
-                            value={marks[question.id] || 0}
-                            onChange={(e) =>
-                              handleMarksChange(question.id, e.target.value)
-                            }
-                            className="w-20"
-                          />
-                          <span className="text-sm text-muted-foreground">
-                            / {question.marks_available}
-                          </span>
-                        </div>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-
-                {/* Summary */}
-                <Card className="p-4 bg-primary/5 border-primary/20">
-                  <div className="grid grid-cols-3 gap-4 text-center">
-                    <div>
-                      <div className="text-sm text-muted-foreground">Total Marks</div>
-                      <div className="text-2xl font-bold">
-                        {totalMarks} / {maxMarks}
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-sm text-muted-foreground">Percentage</div>
-                      <div className="text-2xl font-bold">{percentage}%</div>
-                    </div>
-                    <div>
-                      <div className="text-sm text-muted-foreground">Grade</div>
-                      <div className="text-2xl font-bold">
-                        {calculateGrade(parseFloat(percentage as string))}
-                      </div>
-                    </div>
-                  </div>
+                {/* Submission date picker */}
+                <Card className="p-4 border-border">
+                  <Label htmlFor="submission-date" className="font-semibold">
+                    Submission Date
+                  </Label>
+                  <Input
+                    id="submission-date"
+                    type="date"
+                    value={submissionDate}
+                    onChange={(e) => setSubmissionDate(e.target.value)}
+                    className="mt-2 max-w-xs"
+                  />
+                  <p className="text-xs text-muted-foreground mt-2">
+                    This helps track your progress over time
+                  </p>
                 </Card>
 
+                {/* Questions */}
+                <div>
+                  <h3 className="font-semibold text-lg mb-4">Enter Marks</h3>
+                  <div className="space-y-3">
+                    {questions.map((question, index) => (
+                      <Card
+                        key={question.id}
+                        className="p-4 border border-border hover:border-primary/50 transition-colors"
+                      >
+                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                          <div className="flex-1">
+                            <div className="flex items-start gap-3">
+                              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                                <span className="text-sm font-semibold text-primary">
+                                  {question.question_number}
+                                </span>
+                              </div>
+                              <div className="flex-1">
+                                <div className="font-semibold text-foreground">
+                                  {question.topic}
+                                </div>
+                                {question.sub_topic && (
+                                  <div className="text-sm text-muted-foreground">
+                                    {question.sub_topic}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-3 md:ml-4">
+                            <div className="flex items-center gap-2">
+                              <Input
+                                type="number"
+                                min="0"
+                                max={question.marks_available}
+                                value={marks[question.id] || 0}
+                                onChange={(e) =>
+                                  handleMarksChange(question.id, e.target.value)
+                                }
+                                className="w-16 text-center"
+                              />
+                              <span className="text-sm text-muted-foreground font-medium">
+                                / {question.marks_available}
+                              </span>
+                            </div>
+                            {marks[question.id] === question.marks_available && (
+                              <span className="text-green-600 text-sm font-semibold">✓</span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Progress bar for this question */}
+                        {question.marks_available > 0 && (
+                          <div className="mt-3 ml-11">
+                            <Progress
+                              value={(marks[question.id] || 0) / question.marks_available * 100}
+                              className="h-1"
+                            />
+                          </div>
+                        )}
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Summary Section */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <Card className="p-4 bg-primary/5 border-primary/20">
+                    <div className="text-sm text-muted-foreground mb-1">Marks Achieved</div>
+                    <div className="text-3xl font-bold text-foreground">{totalMarks}</div>
+                    <div className="text-xs text-muted-foreground mt-1">out of {maxMarks}</div>
+                  </Card>
+
+                  <Card className="p-4 bg-blue-50 border-blue-200">
+                    <div className="text-sm text-muted-foreground mb-1">Percentage</div>
+                    <div className="text-3xl font-bold text-blue-600">{percentage}%</div>
+                    <Progress
+                      value={parseFloat(percentage as string)}
+                      className="mt-2 h-1"
+                    />
+                  </Card>
+
+                  <Card className="p-4 bg-amber-50 border-amber-200">
+                    <div className="text-sm text-muted-foreground mb-1">Estimated Grade</div>
+                    <div className="text-3xl font-bold text-amber-600">
+                      {calculateGrade(parseFloat(percentage as string))}
+                    </div>
+                  </Card>
+
+                  <Card className="p-4 bg-emerald-50 border-emerald-200">
+                    <div className="text-sm text-muted-foreground mb-1">Questions Done</div>
+                    <div className="text-3xl font-bold text-emerald-600">
+                      {questions.filter((q) => marks[q.id] > 0).length}/{questions.length}
+                    </div>
+                  </Card>
+                </div>
+
                 {/* Actions */}
-                <div className="flex gap-3">
+                <div className="flex gap-3 pt-4">
                   <Button
                     type="button"
                     variant="outline"
@@ -298,12 +420,13 @@ export default function AddPaper() {
                     type="submit"
                     disabled={submitting}
                     className="flex-1"
+                    size="lg"
                   >
-                    {submitting ? "Submitting..." : "Submit Paper"}
+                    {submitting ? "Submitting..." : "Submit Paper & View Insights"}
                   </Button>
                 </div>
               </form>
-            </Card>
+            </div>
           )}
         </div>
       </main>
