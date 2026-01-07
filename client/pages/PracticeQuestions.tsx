@@ -31,6 +31,7 @@ interface PracticeQuestion {
     steps: string[];
     answer: string;
   };
+  markScheme?: string[];
 }
 
 interface QuestionSet {
@@ -547,24 +548,42 @@ export default function PracticeQuestions() {
 
               {/* Solution Section */}
               {showSolution && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-6">
-                  <h4 className="font-semibold text-green-900 mb-4">
-                    ✓ Solution
-                  </h4>
-                  <div className="space-y-3">
-                    {currentQuestion.solutions.steps.map((step, idx) => (
-                      <p key={idx} className="text-green-800">
-                        <span className="font-semibold">Step {idx + 1}:</span>{" "}
-                        {step}
-                      </p>
-                    ))}
-                    <div className="mt-4 pt-4 border-t border-green-200">
-                      <p className="text-green-900">
-                        <span className="font-semibold">Answer:</span>{" "}
-                        {currentQuestion.solutions.answer}
-                      </p>
+                <div className="space-y-4 mb-6">
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+                    <h4 className="font-semibold text-green-900 mb-4">
+                      ✓ Solution
+                    </h4>
+                    <div className="space-y-3">
+                      {currentQuestion.solutions.steps.map((step, idx) => (
+                        <p key={idx} className="text-green-800">
+                          <span className="font-semibold">Step {idx + 1}:</span>{" "}
+                          {step}
+                        </p>
+                      ))}
+                      <div className="mt-4 pt-4 border-t border-green-200">
+                        <p className="text-green-900">
+                          <span className="font-semibold">Answer:</span>{" "}
+                          {currentQuestion.solutions.answer}
+                        </p>
+                      </div>
                     </div>
                   </div>
+
+                  {currentQuestion.markScheme && (
+                    <div className="bg-slate-50 border border-slate-200 rounded-lg p-6">
+                      <h4 className="font-semibold text-slate-900 mb-4">
+                        📋 Mark Scheme Breakdown
+                      </h4>
+                      <div className="space-y-2">
+                        {currentQuestion.markScheme.map((item, idx) => (
+                          <div key={idx} className="flex gap-2 text-sm text-slate-700">
+                            <span className="font-bold text-primary">•</span>
+                            <p>{item}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
