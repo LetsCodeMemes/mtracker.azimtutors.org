@@ -110,6 +110,8 @@ async function seedPapersData(client: any) {
             question.marksAvailable,
           ]
         );
+      } else {
+        console.warn(`⚠️ Could not find paperId for key: ${paperKey} (Question: ${question.id})`);
       }
     }
 
