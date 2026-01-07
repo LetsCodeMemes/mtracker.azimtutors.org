@@ -115,6 +115,29 @@ export default function Dashboard() {
   }, [thresholds]);
 
   useEffect(() => {
+    const handleCheckin = async () => {
+      const token = localStorage.getItem("auth-storage")
+        ? JSON.parse(localStorage.getItem("auth-storage") || "{}").state?.token
+        : null;
+      if (token) {
+        try {
+          const res = await fetch("/api/gamification/daily-checkin", {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          const data = await res.json();
+          if (data.success && data.pointsAwarded) {
+            toast.success("Daily Streak Bonus!", {
+              description: `You earned ${data.pointsAwarded} points for signing in today.`
+            });
+          }
+        } catch (err) {
+          console.error("Check-in failed", err);
+        }
+      }
+    };
+
+    handleCheckin();
     fetchDashboardData();
   }, []);
 
