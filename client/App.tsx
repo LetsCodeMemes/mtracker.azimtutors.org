@@ -17,6 +17,7 @@ import RevisionPlan from "./pages/RevisionPlan";
 import ExaminerInsights from "./pages/ExaminerInsights";
 import ProgressReport from "./pages/ProgressReport";
 import Onboarding from "./pages/Onboarding";
+import PracticeQuestions from "./pages/PracticeQuestions";
 import { Placeholder } from "./pages/Placeholder";
 import NotFound from "./pages/NotFound";
 import { ProtectedRoute } from "./components/ProtectedRoute";
