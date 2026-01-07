@@ -1,6 +1,6 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { FeedbackWidget } from "@/components/FeedbackWidget";
+import FeedbackWidget from "@/components/FeedbackWidget";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import {
