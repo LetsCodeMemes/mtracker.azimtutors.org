@@ -248,6 +248,9 @@ export default function Dashboard() {
   // Critical topics (5 weakest attempted topics)
   const criticalTopics = weakestTopics;
 
+  // Predicted grade based on average performance
+  const predictedGrade = calculateGrade(overallScore);
+
   // Grade distribution
   const gradeDistribution = [
     { name: "A*", percentage: 83.7 },
