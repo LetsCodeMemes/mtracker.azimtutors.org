@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/lib/auth";
 import {
   Loader,
   AlertCircle,
@@ -174,9 +175,10 @@ const difficultyTextColors = {
 };
 
 export default function RevisionPlan() {
+  const { user } = useAuth();
   const [stats, setStats] = useState<PerformanceStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isPremium] = useState(false); // Set to true for actual premium users
+  const isPremium = user?.plan_type === 'premium';
   const [checkedTasks, setCheckedTasks] = useState<Set<string>>(new Set());
   const [completedTopicIds, setCompletedTopicIds] = useState<Set<string>>(new Set());
 
