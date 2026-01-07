@@ -157,6 +157,16 @@ export async function initializeDatabase() {
       )
     `);
 
+    // Migration: Add chapter_id to exam_questions if it doesn't exist
+    await client.query(`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='exam_questions' AND column_name='chapter_id') THEN
+          ALTER TABLE exam_questions ADD COLUMN chapter_id VARCHAR(50);
+        END IF;
+      END $$;
+    `);
+
     // User papers (submission tracking)
     await client.query(`
       CREATE TABLE IF NOT EXISTS user_papers (
