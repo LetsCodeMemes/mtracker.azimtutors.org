@@ -139,4 +139,55 @@ router.get("/progress", async (req: AuthRequest, res: Response) => {
   }
 });
 
+/**
+ * Get user's completed topics
+ */
+router.get("/completed-topics", async (req: AuthRequest, res: Response) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const result = await pool.query(
+      "SELECT topic_id FROM completed_topics WHERE user_id = $1",
+      [req.user.id]
+    );
+
+    res.json({
+      completedTopicIds: result.rows.map(r => r.topic_id)
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch completed topics" });
+  }
+});
+
+/**
+ * Toggle topic completion status
+ */
+router.post("/toggle-topic", async (req: AuthRequest, res: Response) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const { topicId, completed } = req.body;
+
+    if (completed) {
+      await pool.query(
+        "INSERT INTO completed_topics (user_id, topic_id) VALUES ($1, $2) ON CONFLICT DO NOTHING",
+        [req.user.id, topicId]
+      );
+    } else {
+      await pool.query(
+        "DELETE FROM completed_topics WHERE user_id = $1 AND topic_id = $2",
+        [req.user.id, topicId]
+      );
+    }
+
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to toggle topic status" });
+  }
+});
+
 export { router as performanceRouter };
