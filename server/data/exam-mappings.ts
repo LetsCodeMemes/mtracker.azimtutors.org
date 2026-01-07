@@ -17,6 +17,15 @@ export interface ExamQuestion {
   difficultyLevel?: "easy" | "medium" | "hard";
 }
 
+import {
+  edexcelALevelMaths2018_P2,
+  edexcelALevelMaths2019,
+  edexcelALevelMaths2020,
+  edexcelALevelMaths2021,
+  edexcelALevelMaths2022,
+  edexcelALevelMaths2023_Full,
+} from "./exam-mappings-full";
+
 /**
  * Edexcel A-Level Maths (8MA0) Question Mapping
  * Papers: 1 (Pure), 2 (Pure), 3 (Stats & Mechanics)
@@ -333,14 +342,20 @@ export function getExamQuestions(
   year: number,
   paperNumber: number
 ): ExamQuestion[] {
-  if (examBoard === "Edexcel" && year === 2024) {
-    return edexcelALevelMaths2024.filter((q) => q.paperNumber === paperNumber);
-  }
-  if (examBoard === "Edexcel" && year === 2023) {
-    return edexcelALevelMaths2023.filter((q) => q.paperNumber === paperNumber);
-  }
-  if (examBoard === "Edexcel" && year === 2018) {
-    return edexcelALevelMaths2018.filter((q) => q.paperNumber === paperNumber);
+  const allData = [
+    ...edexcelALevelMaths2024,
+    ...edexcelALevelMaths2023,
+    ...edexcelALevelMaths2023_Full,
+    ...edexcelALevelMaths2022,
+    ...edexcelALevelMaths2021,
+    ...edexcelALevelMaths2020,
+    ...edexcelALevelMaths2019,
+    ...edexcelALevelMaths2018,
+    ...edexcelALevelMaths2018_P2,
+  ];
+
+  if (examBoard === "Edexcel") {
+    return allData.filter((q) => q.year === year && q.paperNumber === paperNumber);
   }
   return [];
 }
@@ -352,7 +367,13 @@ export function getQuestionById(id: string): ExamQuestion | undefined {
   const allQuestions = [
     ...edexcelALevelMaths2024,
     ...edexcelALevelMaths2023,
+    ...edexcelALevelMaths2023_Full,
+    ...edexcelALevelMaths2022,
+    ...edexcelALevelMaths2021,
+    ...edexcelALevelMaths2020,
+    ...edexcelALevelMaths2019,
     ...edexcelALevelMaths2018,
+    ...edexcelALevelMaths2018_P2,
   ];
   return allQuestions.find((q) => q.id === id);
 }
@@ -366,7 +387,17 @@ export function getAvailableTopics(
 ): string[] {
   const allQuestions =
     examBoard === "Edexcel"
-      ? [...edexcelALevelMaths2024, ...edexcelALevelMaths2023, ...edexcelALevelMaths2018]
+      ? [
+          ...edexcelALevelMaths2024,
+          ...edexcelALevelMaths2023,
+          ...edexcelALevelMaths2023_Full,
+          ...edexcelALevelMaths2022,
+          ...edexcelALevelMaths2021,
+          ...edexcelALevelMaths2020,
+          ...edexcelALevelMaths2019,
+          ...edexcelALevelMaths2018,
+          ...edexcelALevelMaths2018_P2,
+        ]
       : [];
 
   const topics = new Set(allQuestions.map((q) => q.topic));
