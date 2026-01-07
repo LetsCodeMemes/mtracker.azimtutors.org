@@ -195,6 +195,7 @@ export const edexcelALevelMaths2018: ExamQuestion[] = [
   { id: "ed_2018_p1_q12", examBoard: "Edexcel", year: 2018, paperNumber: 1, questionNumber: 12, topic: "Geometric Sequences", marksAvailable: 10 },
   { id: "ed_2018_p1_q13", examBoard: "Edexcel", year: 2018, paperNumber: 1, questionNumber: 13, topic: "Integration - By Parts", marksAvailable: 7 },
   { id: "ed_2018_p1_q14", examBoard: "Edexcel", year: 2018, paperNumber: 1, questionNumber: 14, topic: "Parametric Equations", marksAvailable: 10 },
+  { id: "ed_2018_p1_q15", examBoard: "Edexcel", year: 2018, paperNumber: 1, questionNumber: 15, topic: "Vectors (A2)", marksAvailable: 4 },
 ];
 
 /**
