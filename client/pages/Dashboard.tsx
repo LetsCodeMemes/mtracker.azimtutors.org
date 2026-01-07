@@ -49,6 +49,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RandomMistake } from "@/components/RandomMistake";
 import FeedbackWidget from "@/components/FeedbackWidget";
+import { Leaderboard } from "@/components/Leaderboard";
 import { topicToChapter } from "@shared/chapters";
 
 interface PerformanceStats {
@@ -739,6 +740,11 @@ export default function Dashboard() {
               </div>
             </Card>
           )}
+
+          {/* Leaderboard Section */}
+          <div className="mb-8">
+            <Leaderboard />
+          </div>
 
           {/* Recent Papers List */}
           {papers.length > 0 && (
