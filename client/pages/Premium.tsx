@@ -2,10 +2,11 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
-import { Check, Sparkles, Rocket, Shield, Clock, Calendar as CalendarIcon, GraduationCap } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Check, Sparkles, Rocket, Shield, Clock, Calendar as CalendarIcon, GraduationCap, AlertCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { addYears, isAfter, parseISO, format } from "date-fns";
 import {
   Select,
   SelectContent,
@@ -18,6 +19,17 @@ export default function Premium() {
   const [billingCycle, setBillingCycle] = useState<"monthly" | "one-time">("monthly");
   const [yearGroup, setYearGroup] = useState("");
   const [examDate, setExamDate] = useState("");
+
+  const isDateInvalid = useMemo(() => {
+    if (!examDate) return false;
+    const selectedDate = parseISO(examDate);
+    const maxDate = addYears(new Date(), 1);
+    return isAfter(selectedDate, maxDate);
+  }, [examDate]);
+
+  const maxAllowedDate = useMemo(() => {
+    return format(addYears(new Date(), 1), 'yyyy-MM-dd');
+  }, []);
 
   const features = [
     "Unlimited Paper Submissions",
@@ -144,19 +156,32 @@ export default function Premium() {
 
                 <div className="space-y-2">
                   <Label htmlFor="exam-date">Final Exam Date</Label>
-                  <div className="flex items-center gap-2">
-                    <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="exam-date"
-                      type="date"
-                      value={examDate}
-                      onChange={(e) => setExamDate(e.target.value)}
-                    />
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2">
+                      <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="exam-date"
+                        type="date"
+                        value={examDate}
+                        max={maxAllowedDate}
+                        onChange={(e) => setExamDate(e.target.value)}
+                        className={isDateInvalid ? "border-destructive focus-visible:ring-destructive" : ""}
+                      />
+                    </div>
+                    {isDateInvalid && (
+                      <p className="text-[10px] text-destructive flex items-center gap-1 font-medium">
+                        <AlertCircle className="h-3 w-3" />
+                        Date must be within 1 year from today
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
 
-              <Button className="w-full h-12 text-lg font-bold" disabled={!yearGroup || !examDate}>
+              <Button
+                className="w-full h-12 text-lg font-bold"
+                disabled={!yearGroup || !examDate || isDateInvalid}
+              >
                 Upgrade Now
               </Button>
               
