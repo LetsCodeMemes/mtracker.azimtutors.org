@@ -5,14 +5,23 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState, useEffect } from "react";
-import { AlertCircle, CheckCircle, ChevronRight, Calendar, BookOpen, Zap } from "lucide-react";
+import { AlertCircle, CheckCircle, ChevronRight, Calendar, BookOpen, Zap, Filter } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { RandomMistake } from "@/components/RandomMistake";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface ExamQuestion {
   id: number;
   question_number: number;
   topic: string;
   sub_topic: string;
+  chapter_id: string;
   marks_available: number;
 }
 
@@ -155,279 +164,305 @@ export default function AddPaper() {
 
       <main className="flex-1 py-12 px-4 md:px-6">
         <div className="container max-w-5xl">
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold mb-3">Add Past Paper</h1>
-            <p className="text-lg text-muted-foreground">
-              Submit your exam paper and track your progress across topics
-            </p>
-          </div>
-
-          {/* Messages */}
-          {error && (
-            <Card className="mb-6 p-4 border-red-200 bg-red-50">
-              <div className="flex items-start gap-3">
-                <AlertCircle className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
-                <div>
-                  <h3 className="font-semibold text-red-900">Error</h3>
-                  <p className="text-sm text-red-700">{error}</p>
-                </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2">
+              <div className="mb-8">
+                <h1 className="text-4xl font-bold mb-3">Add Past Paper</h1>
+                <p className="text-lg text-muted-foreground">
+                  Submit your exam paper and track your progress across topics
+                </p>
               </div>
-            </Card>
-          )}
 
-          {success && (
-            <Card className="mb-6 p-4 border-green-200 bg-green-50">
-              <div className="flex items-start gap-3">
-                <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
-                <div>
-                  <h3 className="font-semibold text-green-900">Success! 🎉</h3>
-                  <p className="text-sm text-green-700">
-                    Paper submitted. Check your dashboard for insights!
-                  </p>
-                </div>
-              </div>
-            </Card>
-          )}
-
-          {/* Paper Selection Step */}
-          {step === "select" && (
-            <div className="space-y-6">
-              <div>
-                <h2 className="text-2xl font-bold mb-6">Select Exam Paper</h2>
-
-                {loading ? (
-                  <div className="flex items-center justify-center py-16">
-                    <div className="text-center">
-                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-                      <p className="text-muted-foreground">Loading papers...</p>
+              {/* Messages */}
+              {error && (
+                <Card className="mb-6 p-4 border-red-200 bg-red-50">
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <h3 className="font-semibold text-red-900">Error</h3>
+                      <p className="text-sm text-red-700">{error}</p>
                     </div>
                   </div>
-                ) : papers.length === 0 ? (
-                  <Card className="p-12 text-center">
-                    <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <p className="text-muted-foreground">No papers available yet</p>
-                  </Card>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {papers.map((paper) => (
-                      <button
-                        key={paper.id}
-                        onClick={() => handleSelectPaper(paper)}
-                        className="group relative p-6 border border-border rounded-xl hover:border-primary hover:bg-accent hover:shadow-md transition-all duration-200 text-left overflow-hidden"
-                      >
-                        {/* Background gradient on hover */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                        
-                        <div className="relative z-10">
-                          <div className="flex items-start justify-between mb-2">
-                            <div>
-                              <div className="text-sm font-medium text-primary mb-1">
-                                {paper.exam_board}
-                              </div>
-                              <div className="font-bold text-lg text-foreground">
-                                Paper {paper.paper_number}
-                              </div>
-                            </div>
-                            <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
-                          </div>
-                          
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Calendar className="h-4 w-4" />
-                            <span>{paper.year}</span>
-                          </div>
-                          
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground mt-2">
-                            <span className="font-semibold text-foreground">{paper.total_marks}</span>
-                            <span>total marks</span>
-                          </div>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Marketing section */}
-              <Card className="p-8 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
-                <div className="flex items-start gap-4">
-                  <Zap className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
-                  <div>
-                    <h3 className="font-bold mb-2">Track Your Progress</h3>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      Each paper you submit helps us identify your weak topics and generate personalized revision recommendations.
-                    </p>
-                    <a
-                      href="https://www.azimtutors.org/tuition"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm font-semibold text-primary hover:underline"
-                    >
-                      Get A Level maths tutoring today →
-                    </a>
-                  </div>
-                </div>
-              </Card>
-            </div>
-          )}
-
-          {/* Enter Marks Step */}
-          {step === "enter" && selectedPaper && (
-            <div className="space-y-6">
-              {/* Back button and title */}
-              <div>
-                <button
-                  onClick={() => setStep("select")}
-                  className="text-primary hover:underline text-sm font-medium flex items-center gap-1 mb-4"
-                >
-                  ← Back to select paper
-                </button>
-                <div>
-                  <h2 className="text-2xl font-bold">
-                    {selectedPaper.exam_board} {selectedPaper.year}
-                  </h2>
-                  <p className="text-muted-foreground">Paper {selectedPaper.paper_number}</p>
-                </div>
-              </div>
-
-              <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Submission date picker */}
-                <Card className="p-4 border-border">
-                  <Label htmlFor="submission-date" className="font-semibold">
-                    Submission Date
-                  </Label>
-                  <Input
-                    id="submission-date"
-                    type="date"
-                    value={submissionDate}
-                    onChange={(e) => setSubmissionDate(e.target.value)}
-                    className="mt-2 max-w-xs"
-                  />
-                  <p className="text-xs text-muted-foreground mt-2">
-                    This helps track your progress over time
-                  </p>
                 </Card>
+              )}
 
-                {/* Questions */}
-                <div>
-                  <h3 className="font-semibold text-lg mb-4">Enter Marks</h3>
-                  <div className="space-y-3">
-                    {questions.map((question, index) => (
-                      <Card
-                        key={question.id}
-                        className="p-4 border border-border hover:border-primary/50 transition-colors"
-                      >
-                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                          <div className="flex-1">
-                            <div className="flex items-start gap-3">
-                              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                                <span className="text-sm font-semibold text-primary">
-                                  {question.question_number}
-                                </span>
-                              </div>
+              {success && (
+                <Card className="mb-6 p-4 border-green-200 bg-green-50">
+                  <div className="flex items-start gap-3">
+                    <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <h3 className="font-semibold text-green-900">Success! 🎉</h3>
+                      <p className="text-sm text-green-700">
+                        Paper submitted. Check your dashboard for insights!
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+              )}
+
+              {/* Paper Selection Step */}
+              {step === "select" && (
+                <div className="space-y-6">
+                  <div>
+                    <h2 className="text-2xl font-bold mb-6">Select Exam Paper</h2>
+
+                    {loading ? (
+                      <div className="flex items-center justify-center py-16">
+                        <div className="text-center">
+                          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                          <p className="text-muted-foreground">Loading papers...</p>
+                        </div>
+                      </div>
+                    ) : papers.length === 0 ? (
+                      <Card className="p-12 text-center">
+                        <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                        <p className="text-muted-foreground">No papers available yet</p>
+                      </Card>
+                    ) : (
+                      <div className="max-w-xl">
+                        <Label className="text-sm font-medium mb-2 block">Choose Paper from Dropdown</Label>
+                        <Select onValueChange={(val) => {
+                          const paper = papers.find(p => p.id.toString() === val);
+                          if (paper) handleSelectPaper(paper);
+                        }}>
+                          <SelectTrigger className="w-full h-14 text-lg">
+                            <SelectValue placeholder="Select an Edexcel Paper..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {papers.map((paper) => (
+                              <SelectItem key={paper.id} value={paper.id.toString()}>
+                                {paper.exam_board} {paper.year} - Paper {paper.paper_number}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Quick Select Grid (Mini) */}
+                  {!loading && papers.length > 0 && (
+                    <div className="mt-8">
+                      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">Quick Select</h3>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        {papers.slice(0, 6).map((paper) => (
+                          <button
+                            key={paper.id}
+                            onClick={() => handleSelectPaper(paper)}
+                            className="p-3 text-sm border rounded-lg hover:border-primary hover:bg-primary/5 transition-all text-center"
+                          >
+                            {paper.year} P{paper.paper_number}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Enter Marks Step */}
+              {step === "enter" && selectedPaper && (
+                <div className="space-y-6">
+                  {/* Back button and title */}
+                  <div>
+                    <button
+                      onClick={() => setStep("select")}
+                      className="text-primary hover:underline text-sm font-medium flex items-center gap-1 mb-4"
+                    >
+                      ← Back to select paper
+                    </button>
+                    <div>
+                      <h2 className="text-2xl font-bold">
+                        {selectedPaper.exam_board} {selectedPaper.year}
+                      </h2>
+                      <p className="text-muted-foreground">Paper {selectedPaper.paper_number}</p>
+                    </div>
+                  </div>
+
+                  <form onSubmit={handleSubmit} className="space-y-6">
+                    {/* Submission date picker */}
+                    <Card className="p-4 border-border">
+                      <Label htmlFor="submission-date" className="font-semibold">
+                        Submission Date
+                      </Label>
+                      <Input
+                        id="submission-date"
+                        type="date"
+                        value={submissionDate}
+                        onChange={(e) => setSubmissionDate(e.target.value)}
+                        className="mt-2 max-w-xs"
+                      />
+                      <p className="text-xs text-muted-foreground mt-2">
+                        This helps track your progress over time
+                      </p>
+                    </Card>
+
+                    {/* Questions */}
+                    <div>
+                      <h3 className="font-semibold text-lg mb-4">Enter Marks</h3>
+                      <div className="space-y-3">
+                        {questions.map((question, index) => (
+                          <Card
+                            key={question.id}
+                            className="p-4 border border-border hover:border-primary/50 transition-colors"
+                          >
+                            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                               <div className="flex-1">
-                                <div className="font-semibold text-foreground">
-                                  {question.topic}
-                                </div>
-                                {question.sub_topic && (
-                                  <div className="text-sm text-muted-foreground">
-                                    {question.sub_topic}
+                                <div className="flex items-start gap-3">
+                                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                                    <span className="text-sm font-semibold text-primary">
+                                      {question.question_number}
+                                    </span>
                                   </div>
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2">
+                                      <div className="font-semibold text-foreground">
+                                        {question.topic}
+                                      </div>
+                                      {question.chapter_id && (
+                                        <span className="text-[10px] font-bold bg-muted px-1.5 py-0.5 rounded uppercase">
+                                          {question.chapter_id.replace('_', ' ')}
+                                        </span>
+                                      )}
+                                    </div>
+                                    {question.sub_topic && (
+                                      <div className="text-sm text-muted-foreground">
+                                        {question.sub_topic}
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-3 md:ml-4">
+                                <div className="flex items-center gap-2">
+                                  <Input
+                                    type="number"
+                                    min="0"
+                                    max={question.marks_available}
+                                    value={marks[question.id] || 0}
+                                    onChange={(e) =>
+                                      handleMarksChange(question.id, e.target.value)
+                                    }
+                                    className="w-16 text-center"
+                                  />
+                                  <span className="text-sm text-muted-foreground font-medium">
+                                    / {question.marks_available}
+                                  </span>
+                                </div>
+                                {marks[question.id] === question.marks_available && (
+                                  <span className="text-green-600 text-sm font-semibold">✓</span>
                                 )}
                               </div>
                             </div>
-                          </div>
 
-                          <div className="flex items-center gap-3 md:ml-4">
-                            <div className="flex items-center gap-2">
-                              <Input
-                                type="number"
-                                min="0"
-                                max={question.marks_available}
-                                value={marks[question.id] || 0}
-                                onChange={(e) =>
-                                  handleMarksChange(question.id, e.target.value)
-                                }
-                                className="w-16 text-center"
-                              />
-                              <span className="text-sm text-muted-foreground font-medium">
-                                / {question.marks_available}
-                              </span>
-                            </div>
-                            {marks[question.id] === question.marks_available && (
-                              <span className="text-green-600 text-sm font-semibold">✓</span>
+                            {/* Progress bar for this question */}
+                            {question.marks_available > 0 && (
+                              <div className="mt-3 ml-11">
+                                <Progress
+                                  value={(marks[question.id] || 0) / question.marks_available * 100}
+                                  className="h-1"
+                                />
+                              </div>
                             )}
-                          </div>
-                        </div>
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
 
-                        {/* Progress bar for this question */}
-                        {question.marks_available > 0 && (
-                          <div className="mt-3 ml-11">
-                            <Progress
-                              value={(marks[question.id] || 0) / question.marks_available * 100}
-                              className="h-1"
-                            />
-                          </div>
-                        )}
+                    {/* Summary Section */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                      <Card className="p-4 bg-primary/5 border-primary/20">
+                        <div className="text-sm text-muted-foreground mb-1">Marks Achieved</div>
+                        <div className="text-3xl font-bold text-foreground">{totalMarks}</div>
+                        <div className="text-xs text-muted-foreground mt-1">out of {maxMarks}</div>
                       </Card>
-                    ))}
+
+                      <Card className="p-4 bg-blue-50 border-blue-200">
+                        <div className="text-sm text-muted-foreground mb-1">Percentage</div>
+                        <div className="text-3xl font-bold text-blue-600">{percentage}%</div>
+                        <Progress
+                          value={parseFloat(percentage as string)}
+                          className="mt-2 h-1"
+                        />
+                      </Card>
+
+                      <Card className="p-4 bg-amber-50 border-amber-200">
+                        <div className="text-sm text-muted-foreground mb-1">Estimated Grade</div>
+                        <div className="text-3xl font-bold text-amber-600">
+                          {calculateGrade(parseFloat(percentage as string))}
+                        </div>
+                      </Card>
+
+                      <Card className="p-4 bg-emerald-50 border-emerald-200">
+                        <div className="text-sm text-muted-foreground mb-1">Questions Done</div>
+                        <div className="text-3xl font-bold text-emerald-600">
+                          {questions.filter((q) => marks[q.id] > 0).length}/{questions.length}
+                        </div>
+                      </Card>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex gap-3 pt-4">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setStep("select")}
+                        disabled={submitting}
+                      >
+                        Back
+                      </Button>
+                      <Button
+                        type="submit"
+                        disabled={submitting}
+                        className="flex-1"
+                        size="lg"
+                      >
+                        {submitting ? "Submitting..." : "Submit Paper & View Insights"}
+                      </Button>
+                    </div>
+                  </form>
+                </div>
+              )}
+            </div>
+
+            {/* Sidebar */}
+            <div className="space-y-6">
+              <RandomMistake />
+
+              {/* Marketing section */}
+              <Card className="p-6 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
+                <div className="flex items-start gap-4 mb-4">
+                  <Zap className="h-6 w-6 text-primary flex-shrink-0" />
+                  <div>
+                    <h3 className="font-bold">Track Your Progress</h3>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Each paper you submit helps us identify your weak topics and generate personalized revision recommendations.
+                    </p>
                   </div>
                 </div>
-
-                {/* Summary Section */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <Card className="p-4 bg-primary/5 border-primary/20">
-                    <div className="text-sm text-muted-foreground mb-1">Marks Achieved</div>
-                    <div className="text-3xl font-bold text-foreground">{totalMarks}</div>
-                    <div className="text-xs text-muted-foreground mt-1">out of {maxMarks}</div>
-                  </Card>
-
-                  <Card className="p-4 bg-blue-50 border-blue-200">
-                    <div className="text-sm text-muted-foreground mb-1">Percentage</div>
-                    <div className="text-3xl font-bold text-blue-600">{percentage}%</div>
-                    <Progress
-                      value={parseFloat(percentage as string)}
-                      className="mt-2 h-1"
-                    />
-                  </Card>
-
-                  <Card className="p-4 bg-amber-50 border-amber-200">
-                    <div className="text-sm text-muted-foreground mb-1">Estimated Grade</div>
-                    <div className="text-3xl font-bold text-amber-600">
-                      {calculateGrade(parseFloat(percentage as string))}
-                    </div>
-                  </Card>
-
-                  <Card className="p-4 bg-emerald-50 border-emerald-200">
-                    <div className="text-sm text-muted-foreground mb-1">Questions Done</div>
-                    <div className="text-3xl font-bold text-emerald-600">
-                      {questions.filter((q) => marks[q.id] > 0).length}/{questions.length}
-                    </div>
-                  </Card>
-                </div>
-
-                {/* Actions */}
-                <div className="flex gap-3 pt-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setStep("select")}
-                    disabled={submitting}
+                <Button variant="default" className="w-full" asChild>
+                  <a
+                    href="https://www.azimtutors.org/tuition"
+                    target="_blank"
+                    rel="noopener noreferrer"
                   >
-                    Back
-                  </Button>
-                  <Button
-                    type="submit"
-                    disabled={submitting}
-                    className="flex-1"
-                    size="lg"
-                  >
-                    {submitting ? "Submitting..." : "Submit Paper & View Insights"}
-                  </Button>
-                </div>
-              </form>
+                    Get Tutoring Today
+                  </a>
+                </Button>
+              </Card>
+
+              <Card className="p-6 border-dashed border-2">
+                <h4 className="font-semibold mb-3 flex items-center gap-2">
+                  <Filter className="w-4 h-4" />
+                  Need more papers?
+                </h4>
+                <p className="text-xs text-muted-foreground">
+                  Our database is updated weekly with new practice papers and examiner insights.
+                </p>
+              </Card>
             </div>
-          )}
+          </div>
         </div>
       </main>
 
@@ -437,11 +472,11 @@ export default function AddPaper() {
 }
 
 function calculateGrade(percentage: number): string {
-  if (percentage >= 90) return "A*";
-  if (percentage >= 80) return "A";
-  if (percentage >= 70) return "B";
-  if (percentage >= 60) return "C";
-  if (percentage >= 50) return "D";
-  if (percentage >= 40) return "E";
+  if (percentage >= 83.7) return "A*";
+  if (percentage >= 68.3) return "A";
+  if (percentage >= 55.7) return "B";
+  if (percentage >= 43.3) return "C";
+  if (percentage >= 31.0) return "D";
+  if (percentage >= 18.7) return "E";
   return "U";
 }
