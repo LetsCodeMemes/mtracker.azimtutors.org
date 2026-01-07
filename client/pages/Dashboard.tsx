@@ -479,10 +479,15 @@ export default function Dashboard() {
                   return (
                     <div
                       key={topic.topic}
-                      className={`p-3 rounded-lg ${bgColor} ${textColor} text-center`}
+                      className={`p-3 rounded-lg ${bgColor} ${textColor} text-center relative overflow-hidden`}
                     >
                       <p className="text-xs font-semibold line-clamp-1">{topic.topic}</p>
                       <p className="text-lg font-bold">{topic.accuracy}%</p>
+                      {topicToChapter[topic.topic] && (
+                        <p className="text-[8px] font-bold opacity-50 uppercase absolute bottom-1 right-2">
+                          {topicToChapter[topic.topic].replace('_', ' ')}
+                        </p>
+                      )}
                     </div>
                   );
                 })}
