@@ -520,6 +520,23 @@ const questionTemplates: Record<string, PracticeQuestion[]> = {
       },
     },
   ],
+
+  "Data Collection": [
+    {
+      id: "dc_1",
+      topic: "Data Collection",
+      difficulty: "easy",
+      question: "Which of these is a qualitative variable: Weight, Height, Color, or Age?",
+      hints: ["Qualitative means descriptive, not numerical", "Think about which one isn't measured in numbers"],
+      solutions: {
+        steps: [
+          "Weight, Height, and Age are all numerical (quantitative)",
+          "Color is descriptive (qualitative)",
+        ],
+        answer: "Color",
+      },
+    },
+  ],
 };
 
 /**
