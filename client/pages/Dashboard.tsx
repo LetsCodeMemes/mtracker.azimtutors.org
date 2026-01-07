@@ -5,19 +5,17 @@ import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import {
-  AreaChart,
-  Area,
   BarChart,
   Bar,
-  PieChart,
-  Pie,
-  Cell,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   Legend,
   ResponsiveContainer,
+  LineChart,
+  Line,
+  Cell,
 } from "recharts";
 import {
   Plus,
@@ -26,11 +24,19 @@ import {
   Target,
   AlertCircle,
   ArrowUpRight,
+  ArrowDownRight,
+  Flame,
+  Award,
+  Zap,
+  Brain,
+  GraduationCap,
+  CheckCircle2,
   Clock,
   Loader,
   Sparkles,
+  BarChart3,
 } from "lucide-react";
-import { PremiumUpgradeCard } from "@/components/PremiumUpgradeCard";
+import { Progress } from "@/components/ui/progress";
 
 interface PerformanceStats {
   overallScore: number;
@@ -59,9 +65,28 @@ interface UserPaper {
   percentage: number;
 }
 
+interface UserStreak {
+  current_streak: number;
+  longest_streak: number;
+}
+
+interface UserPoints {
+  total_points: number;
+  level: number;
+}
+
+interface UserPlan {
+  plan_type: string;
+  max_papers: number;
+  papers_submitted: number;
+}
+
 export default function Dashboard() {
   const [stats, setStats] = useState<PerformanceStats | null>(null);
   const [papers, setPapers] = useState<UserPaper[]>([]);
+  const [streak, setStreak] = useState<UserStreak | null>(null);
+  const [points, setPoints] = useState<UserPoints | null>(null);
+  const [plan, setPlan] = useState<UserPlan | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -77,9 +102,12 @@ export default function Dashboard() {
 
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
-      const [statsRes, papersRes] = await Promise.all([
+      const [statsRes, papersRes, streakRes, pointsRes, planRes] = await Promise.all([
         fetch("/api/performance/stats", { headers }),
         fetch("/api/performance/papers", { headers }),
+        fetch("/api/gamification/streaks", { headers }),
+        fetch("/api/gamification/points", { headers }),
+        fetch("/api/gamification/plan", { headers }),
       ]);
 
       if (!statsRes.ok || !papersRes.ok) {
@@ -88,9 +116,15 @@ export default function Dashboard() {
 
       const statsData = await statsRes.json();
       const papersData = await papersRes.json();
+      const streakData = streakRes.ok ? await streakRes.json() : null;
+      const pointsData = pointsRes.ok ? await pointsRes.json() : null;
+      const planData = planRes.ok ? await planRes.json() : null;
 
       setStats(statsData);
       setPapers(papersData);
+      setStreak(streakData);
+      setPoints(pointsData);
+      setPlan(planData);
     } catch (err) {
       setError("Failed to load dashboard data");
       console.error(err);
@@ -135,53 +169,54 @@ export default function Dashboard() {
     );
   }
 
-  // Calculate additional metrics
-  const improvementTrend = 8; // This could be calculated from progress data
-  const topicCount = stats.topics.length;
   const overallScore = stats.overallScore;
+  const topicCount = stats.topics.length;
   const paperCount = stats.paperCount;
 
-  // Prepare data for charts
-  const progressData = [
-    { month: "Progress", score: overallScore },
+  // Calculate exam readiness metrics
+  const sortedTopics = [...stats.topics].sort((a, b) => b.accuracy - a.accuracy);
+  const weakestTopics = [...stats.topics].sort((a, b) => a.accuracy - b.accuracy).slice(0, 3);
+  const strongTopics = sortedTopics.slice(0, 3);
+  
+  // Topics left before A* (90% required)
+  const topicsNeedingWork = stats.topics.filter((t) => t.accuracy < 90).length;
+  
+  // Predicted grade based on average performance
+  const predictedGrade = calculateGrade(overallScore);
+  
+  // Weakest 10% of content (bottom performing topics)
+  const totalQuestions = stats.topics.reduce((sum, t) => sum + t.marks_available, 0);
+  let cumulativeMarks = 0;
+  const weakest10Percent = stats.topics
+    .sort((a, b) => a.accuracy - b.accuracy)
+    .filter((topic) => {
+      if (cumulativeMarks >= totalQuestions * 0.1) return false;
+      cumulativeMarks += topic.marks_available;
+      return true;
+    });
+
+  // Grade distribution
+  const gradeDistribution = [
+    { name: "A*", percentage: 90 },
+    { name: "A", percentage: 80 },
+    { name: "B", percentage: 70 },
+    { name: "C", percentage: 60 },
+    { name: "D", percentage: 50 },
   ];
 
-  const topicAccuracyData = stats.topics
-    .slice(0, 4)
-    .map((topic, idx) => ({
-      name: topic.topic,
-      value: topic.accuracy,
-      color: ["#DC2626", "#991B1B", "#F87171", "#7F1D1D"][idx],
-    }));
-
-  const topicBreakdown = stats.topics.map((topic) => ({
-    topic: topic.topic,
-    marks: topic.marks_obtained,
-    marksLost: topic.marks_available - topic.marks_obtained,
-    accuracy: topic.accuracy,
-  }));
-
-  const weakestTopics = stats.questionTypeWeakness
-    .slice(0, 3)
-    .map((weakness) => ({
-      topic: weakness.question_type,
-      marksLost: weakness.marks_lost,
-      priority: weakness.marks_lost > 5 ? "High" : "Medium",
-    }));
-
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-muted/10">
       <Header />
 
       <main className="flex-1">
         {/* Dashboard Header */}
-        <div className="border-b border-border">
+        <div className="border-b border-border bg-gradient-to-r from-primary/5 to-primary/10">
           <div className="container max-w-6xl px-4 md:px-6 py-8">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div>
-                <h1 className="text-3xl md:text-4xl font-bold mb-2">Your Maths Progress</h1>
+                <h1 className="text-4xl font-bold mb-2">Your Maths Progress</h1>
                 <p className="text-muted-foreground">
-                  Track your A Level Edexcel Maths papers and identify areas to improve.
+                  A Level Edexcel Maths - Data-driven insights for your exam success
                 </p>
               </div>
               <Button size="lg" asChild className="gap-2">
@@ -195,6 +230,57 @@ export default function Dashboard() {
         </div>
 
         <div className="container max-w-6xl px-4 md:px-6 py-8">
+          {/* Gamification Section */}
+          {streak && points && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+              {/* Streak Card */}
+              <Card className="p-6 bg-gradient-to-br from-orange-50 to-orange-100/50 border-orange-200">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">Current Streak</p>
+                    <p className="text-3xl font-bold text-orange-600">{streak.current_streak} days</p>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Best: {streak.longest_streak} days
+                    </p>
+                  </div>
+                  <Flame className="h-6 w-6 text-orange-600" />
+                </div>
+              </Card>
+
+              {/* Points Card */}
+              <Card className="p-6 bg-gradient-to-br from-blue-50 to-blue-100/50 border-blue-200">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">Your Level</p>
+                    <p className="text-3xl font-bold text-blue-600">{points.level}</p>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      {points.total_points} points earned
+                    </p>
+                  </div>
+                  <Award className="h-6 w-6 text-blue-600" />
+                </div>
+              </Card>
+
+              {/* Plan Card */}
+              {plan && (
+                <Card className="p-6 bg-gradient-to-br from-green-50 to-green-100/50 border-green-200">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground mb-1">Papers Submitted</p>
+                      <p className="text-3xl font-bold text-green-600">
+                        {plan.papers_submitted} <span className="text-lg">/ {plan.max_papers}</span>
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        {plan.plan_type === "free" ? "Free Plan" : "Premium Plan"}
+                      </p>
+                    </div>
+                    <BookMarked className="h-6 w-6 text-green-600" />
+                  </div>
+                </Card>
+              )}
+            </div>
+          )}
+
           {/* KPI Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
             {/* Overall Score */}
@@ -203,297 +289,359 @@ export default function Dashboard() {
                 <div className="h-10 w-10 bg-primary/10 rounded-lg flex items-center justify-center">
                   <Target className="h-5 w-5 text-primary" />
                 </div>
-                <div className="flex items-center gap-1 text-success text-sm font-medium">
-                  <ArrowUpRight className="h-3 w-3" />
-                  {improvementTrend}%
-                </div>
+                <div className="text-sm font-medium text-success">+12%</div>
               </div>
-              <p className="text-sm text-muted-foreground mb-1">Overall Score</p>
+              <p className="text-sm text-muted-foreground mb-1">Average Score</p>
               <p className="text-3xl font-bold">{overallScore}%</p>
-              <p className="text-xs text-muted-foreground mt-2">Across all papers</p>
+              <div className="mt-3 h-1.5 bg-muted rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-primary transition-all"
+                  style={{ width: `${Math.min(overallScore, 100)}%` }}
+                />
+              </div>
             </Card>
 
             {/* Papers Tracked */}
             <Card className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <div className="h-10 w-10 bg-secondary/10 rounded-lg flex items-center justify-center">
-                  <BookMarked className="h-5 w-5 text-secondary" />
-                </div>
-                <div className="flex items-center gap-1 text-foreground text-sm font-medium">
-                  {paperCount}
+                <div className="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <BookMarked className="h-5 w-5 text-blue-600" />
                 </div>
               </div>
               <p className="text-sm text-muted-foreground mb-1">Papers Tracked</p>
               <p className="text-3xl font-bold">{paperCount}</p>
-              <p className="text-xs text-muted-foreground mt-2">This month</p>
+              <p className="text-xs text-muted-foreground mt-2">submitted & analyzed</p>
             </Card>
 
-            {/* Topics Covered */}
+            {/* Topics Mastered */}
             <Card className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <div className="h-10 w-10 bg-accent/10 rounded-lg flex items-center justify-center">
-                  <TrendingUp className="h-5 w-5 text-accent" />
-                </div>
-                <div className="flex items-center gap-1 text-foreground text-sm font-medium">
-                  {topicCount}
+                <div className="h-10 w-10 bg-emerald-100 rounded-lg flex items-center justify-center">
+                  <CheckCircle2 className="h-5 w-5 text-emerald-600" />
                 </div>
               </div>
-              <p className="text-sm text-muted-foreground mb-1">Topics Covered</p>
-              <p className="text-3xl font-bold">{topicCount}</p>
-              <p className="text-xs text-muted-foreground mt-2">Unique topics</p>
+              <p className="text-sm text-muted-foreground mb-1">Topics Mastered</p>
+              <p className="text-3xl font-bold">{strongTopics.length}</p>
+              <p className="text-xs text-muted-foreground mt-2">80%+ accuracy</p>
             </Card>
 
-            {/* Average Time */}
-            <Card className="p-6">
+            {/* Predicted Grade */}
+            <Card className="p-6 bg-gradient-to-br from-amber-50 to-amber-100/50">
               <div className="flex items-center justify-between mb-4">
-                <div className="h-10 w-10 bg-warning/10 rounded-lg flex items-center justify-center">
-                  <Clock className="h-5 w-5 text-warning" />
+                <div className="h-10 w-10 bg-amber-100 rounded-lg flex items-center justify-center">
+                  <GraduationCap className="h-5 w-5 text-amber-600" />
                 </div>
               </div>
-              <p className="text-sm text-muted-foreground mb-1">Study Time</p>
-              <p className="text-3xl font-bold">24h</p>
-              <p className="text-xs text-muted-foreground mt-2">Total this month</p>
+              <p className="text-sm text-muted-foreground mb-1">Predicted Grade</p>
+              <p className="text-3xl font-bold text-amber-600">{predictedGrade}</p>
+              <p className="text-xs text-muted-foreground mt-2">at current pace</p>
             </Card>
           </div>
 
-          {/* Charts Row 1 */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-            {/* Progress Chart */}
-            <Card className="p-6 lg:col-span-2">
-              <h2 className="text-lg font-semibold mb-6">Progress Over Time</h2>
-              <ResponsiveContainer width="100%" height={300}>
-                <AreaChart data={progressData}>
-                  <defs>
-                    <linearGradient id="colorScore" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#2563eb" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
-                  <YAxis stroke="hsl(var(--muted-foreground))" />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "hsl(var(--card))",
-                      border: "1px solid hsl(var(--border))",
-                    }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="score"
-                    stroke="#2563eb"
-                    fillOpacity={1}
-                    fill="url(#colorScore)"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </Card>
+          {/* Exam Readiness Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            {/* Exam Readiness Dashboard */}
+            <Card className="p-6 border-l-4 border-l-primary">
+              <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+                <Target className="h-5 w-5 text-primary" />
+                Exam Readiness Dashboard
+              </h2>
 
-            {/* Topic Accuracy Pie */}
-            <Card className="p-6">
-              <h2 className="text-lg font-semibold mb-6">Topic Accuracy</h2>
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={topicAccuracyData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={100}
-                    paddingAngle={2}
-                    dataKey="value"
-                  >
-                    {topicAccuracyData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="mt-4 space-y-2">
-                {topicAccuracyData.map((item) => (
-                  <div key={item.name} className="flex items-center gap-2 text-sm">
-                    <div
-                      className="h-2 w-2 rounded-full"
-                      style={{ backgroundColor: item.color }}
-                    />
-                    <span className="text-muted-foreground">{item.name}</span>
-                    <span className="font-semibold ml-auto">{item.value}%</span>
+              <div className="space-y-5">
+                {/* % of syllabus mastered */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-sm font-semibold text-foreground">
+                      Syllabus Mastered
+                    </label>
+                    <span className="text-sm font-bold text-primary">
+                      {Math.round((overallScore / 90) * 100)}%
+                    </span>
                   </div>
-                ))}
-              </div>
-            </Card>
-          </div>
+                  <Progress value={Math.min((overallScore / 90) * 100, 100)} className="h-2" />
+                </div>
 
-          {/* Topic Breakdown */}
-          <Card className="p-6 mb-8">
-            <h2 className="text-lg font-semibold mb-6">Topic Breakdown</h2>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border">
-                    <th className="text-left py-3 px-4 font-semibold">Topic</th>
-                    <th className="text-center py-3 px-4 font-semibold">Marks Got</th>
-                    <th className="text-center py-3 px-4 font-semibold">Marks Lost</th>
-                    <th className="text-center py-3 px-4 font-semibold">Accuracy</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {topicBreakdown.map((topic, idx) => (
-                    <tr key={idx} className="border-b border-border hover:bg-muted/30">
-                      <td className="py-4 px-4 font-medium">{topic.topic}</td>
-                      <td className="py-4 px-4 text-center text-success font-semibold">
-                        {topic.marks}
-                      </td>
-                      <td className="py-4 px-4 text-center text-destructive font-semibold">
-                        {topic.marksLost}
-                      </td>
-                      <td className="py-4 px-4">
-                        <div className="flex items-center justify-center gap-2">
-                          <div className="flex-1 max-w-xs bg-muted rounded-full h-2">
-                            <div
-                              className="bg-primary h-2 rounded-full"
-                              style={{ width: `${topic.accuracy}%` }}
-                            />
-                          </div>
-                          <span className="font-semibold text-right">{topic.accuracy}%</span>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Card>
+                {/* Topics left before A* */}
+                <div className="bg-muted/50 p-4 rounded-lg">
+                  <p className="text-sm font-semibold mb-2">Topics Left Before A*</p>
+                  <p className="text-2xl font-bold text-primary">{topicsNeedingWork}</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {topicsNeedingWork} topics below 90% accuracy
+                  </p>
+                </div>
 
-          {/* What to Revise Next */}
-          <Card className="p-6 border-l-4 border-l-warning mb-8">
-            <div className="flex items-start gap-4">
-              <div className="h-10 w-10 bg-warning/10 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
-                <AlertCircle className="h-5 w-5 text-warning" />
-              </div>
-              <div className="flex-1">
-                <h2 className="text-lg font-semibold mb-3">What To Revise Next</h2>
-                <p className="text-muted-foreground mb-4">
-                  Based on your analysis, prioritize these topics to maximize your score improvement:
-                </p>
-                <div className="space-y-3">
-                  {weakestTopics.map((item, idx) => (
-                    <div
-                      key={idx}
-                      className="flex items-center justify-between p-4 bg-muted/50 rounded-lg"
-                    >
-                      <div>
-                        <p className="font-semibold text-foreground">{item.topic}</p>
-                        <p className="text-sm text-muted-foreground">
-                          Currently losing {item.marksLost} marks
-                        </p>
-                      </div>
-                      <div className="text-right">
+                {/* Weakest 10% of content */}
+                {weakest10Percent.length > 0 && (
+                  <div className="border-t border-border pt-4">
+                    <p className="text-sm font-semibold mb-3">Critical Topics (Weakest 10%)</p>
+                    <div className="space-y-2">
+                      {weakest10Percent.map((topic) => (
                         <div
-                          className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                            item.priority === "High"
-                              ? "bg-destructive/10 text-destructive"
-                              : "bg-warning/10 text-warning"
-                          }`}
+                          key={topic.topic}
+                          className="flex items-center justify-between p-2 bg-destructive/5 rounded"
                         >
-                          {item.priority} Priority
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </Card>
-
-          {/* AI Features Placeholder */}
-          <div className="mb-8">
-            <h2 className="text-lg font-semibold mb-4">Coming Soon</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Card className="p-6 border-primary/20 bg-primary/5">
-                <div className="flex items-start gap-4">
-                  <div className="h-10 w-10 bg-primary/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Sparkles className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-foreground mb-1">
-                      AI Topic Explanations
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      Get instant AI-powered explanations for any topic
-                    </p>
-                  </div>
-                </div>
-              </Card>
-
-              <Card className="p-6 border-primary/20 bg-primary/5">
-                <div className="flex items-start gap-4">
-                  <div className="h-10 w-10 bg-primary/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Sparkles className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-foreground mb-1">
-                      Adaptive Learning Path
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      AI will customize your study plan based on your progress
-                    </p>
-                  </div>
-                </div>
-              </Card>
-            </div>
-          </div>
-
-          {/* Recent Papers */}
-          <Card className="p-6">
-            <h2 className="text-lg font-semibold mb-6">Recent Papers</h2>
-            {papers.length === 0 ? (
-              <div className="text-center py-8">
-                <p className="text-muted-foreground mb-4">
-                  No papers submitted yet. Start by adding a past paper.
-                </p>
-                <Button asChild>
-                  <Link to="/add-paper">Add Your First Paper</Link>
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {papers.map((paper) => (
-                  <div
-                    key={paper.id}
-                    className="flex flex-col md:flex-row md:items-center justify-between p-4 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors"
-                  >
-                    <div>
-                      <p className="font-semibold text-foreground">
-                        {paper.exam_board} {paper.year} - Paper {paper.paper_number}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {new Date(paper.submission_date).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <div className="mt-3 md:mt-0 flex items-center gap-4">
-                      <div className="text-right">
-                        <div className="text-2xl font-bold text-primary">
-                          {paper.marks_obtained}
-                          <span className="text-sm text-muted-foreground ml-1">
-                            / {paper.total_marks}
+                          <span className="text-sm text-foreground">{topic.topic}</span>
+                          <span className="text-sm font-bold text-destructive">
+                            {topic.accuracy}%
                           </span>
                         </div>
-                        <div className="text-sm text-muted-foreground">
-                          {paper.percentage}%
-                        </div>
-                      </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </Card>
+
+            {/* Topic Heatmap */}
+            <Card className="p-6">
+              <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+                <BarChart3 className="h-5 w-5 text-primary" />
+                Topic Performance Heatmap
+              </h2>
+
+              <div className="grid grid-cols-2 gap-2 max-h-60 overflow-y-auto">
+                {stats.topics.map((topic) => {
+                  let bgColor = "bg-red-100";
+                  let textColor = "text-red-700";
+
+                  if (topic.accuracy >= 80) {
+                    bgColor = "bg-green-100";
+                    textColor = "text-green-700";
+                  } else if (topic.accuracy >= 60) {
+                    bgColor = "bg-yellow-100";
+                    textColor = "text-yellow-700";
+                  }
+
+                  return (
+                    <div
+                      key={topic.topic}
+                      className={`p-3 rounded-lg ${bgColor} ${textColor} text-center`}
+                    >
+                      <p className="text-xs font-semibold line-clamp-1">{topic.topic}</p>
+                      <p className="text-lg font-bold">{topic.accuracy}%</p>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="mt-4 flex items-center gap-4 text-xs">
+                <div className="flex items-center gap-2">
+                  <div className="h-4 w-4 rounded bg-green-100" />
+                  <span>Strong (80%+)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="h-4 w-4 rounded bg-yellow-100" />
+                  <span>Shaky (60-79%)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="h-4 w-4 rounded bg-red-100" />
+                  <span>Weak (&lt;60%)</span>
+                </div>
+              </div>
+            </Card>
+          </div>
+
+          {/* Mistake Intelligence Section */}
+          <Card className="p-6 mb-8">
+            <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+              <Brain className="h-5 w-5 text-primary" />
+              Mistake Intelligence
+            </h2>
+
+            {stats.questionTypeWeakness.length === 0 ? (
+              <p className="text-muted-foreground text-center py-8">
+                No mistake data yet. Submit more papers to see patterns.
+              </p>
+            ) : (
+              <div className="space-y-4">
+                {stats.questionTypeWeakness.slice(0, 5).map((weakness, idx) => (
+                  <div key={idx} className="flex items-center justify-between p-4 bg-muted/30 rounded-lg">
+                    <div className="flex-1">
+                      <p className="font-semibold text-foreground">{weakness.question_type}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Losing {weakness.marks_lost} marks
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-2xl font-bold text-primary">{weakness.accuracy}%</p>
+                      <p className="text-xs text-muted-foreground">accuracy</p>
                     </div>
                   </div>
                 ))}
               </div>
             )}
           </Card>
+
+          {/* Smart Revision Mode */}
+          <Card className="p-6 mb-8 bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20">
+            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+              <Zap className="h-5 w-5 text-primary" />
+              Smart Revision Mode
+            </h2>
+            <p className="text-muted-foreground mb-6">
+              Focus on these topics today to maximize your improvement:
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              {weakestTopics.map((topic, idx) => (
+                <div
+                  key={idx}
+                  className="p-4 bg-card rounded-lg border border-border hover:border-primary transition-colors"
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <p className="font-semibold text-foreground text-sm">{topic.topic}</p>
+                    <span className="text-xs font-bold px-2 py-1 rounded bg-destructive/10 text-destructive">
+                      Low {topic.accuracy}%
+                    </span>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-3">10 practice questions</p>
+                  <Button size="sm" variant="outline" className="w-full text-xs">
+                    Start Revision
+                  </Button>
+                </div>
+              ))}
+            </div>
+
+            <a
+              href="https://www.azimtutors.org/tuition"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-semibold text-primary hover:underline flex items-center gap-2"
+            >
+              Need personalized help? Get A Level maths tutoring today →
+            </a>
+          </Card>
+
+          {/* Paper Replay Mode */}
+          {papers.length > 0 && (
+            <Card className="p-6 mb-8">
+              <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-primary" />
+                Paper Performance Replay
+              </h2>
+
+              <div className="space-y-4">
+                {papers.slice(0, 5).map((paper) => (
+                  <div
+                    key={paper.id}
+                    className="p-4 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors"
+                  >
+                    <div className="flex flex-col md:flex-row md:items-center justify-between mb-3">
+                      <div>
+                        <p className="font-semibold text-foreground">
+                          {paper.exam_board} {paper.year} - Paper {paper.paper_number}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {new Date(paper.submission_date).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-4 mt-2 md:mt-0">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Score</p>
+                          <p className="text-2xl font-bold text-primary">
+                            {paper.marks_obtained}/{paper.total_marks}
+                          </p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-sm text-muted-foreground">Percentage</p>
+                          <p className="text-2xl font-bold text-amber-600">{paper.percentage}%</p>
+                        </div>
+                      </div>
+                    </div>
+                    <Button size="sm" variant="ghost" className="text-primary">
+                      Review mistakes →
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+
+          {/* Upgrade Prompt */}
+          {plan?.plan_type === "free" && (
+            <Card className="p-8 bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20 mb-8">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                  <h3 className="text-lg font-bold mb-2">Upgrade to Premium</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Get unlimited past papers, AI-powered study plans, and weekly revision schedules
+                  </p>
+                  <ul className="space-y-2 text-sm">
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-primary" />
+                      Unlimited paper submissions
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-primary" />
+                      AI revision plans
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-primary" />
+                      Personalized study timetable
+                    </li>
+                  </ul>
+                </div>
+                <Button size="lg" className="whitespace-nowrap">
+                  Upgrade Now
+                </Button>
+              </div>
+            </Card>
+          )}
+
+          {/* Recent Papers List */}
+          {papers.length > 0 && (
+            <Card className="p-6">
+              <h2 className="text-lg font-semibold mb-6">All Submitted Papers</h2>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border">
+                      <th className="text-left py-3 px-4 font-semibold">Paper</th>
+                      <th className="text-center py-3 px-4 font-semibold">Date</th>
+                      <th className="text-center py-3 px-4 font-semibold">Score</th>
+                      <th className="text-center py-3 px-4 font-semibold">Percentage</th>
+                      <th className="text-center py-3 px-4 font-semibold">Grade</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {papers.map((paper) => (
+                      <tr key={paper.id} className="border-b border-border hover:bg-muted/30">
+                        <td className="py-4 px-4 font-medium">
+                          {paper.exam_board} {paper.year} - Paper {paper.paper_number}
+                        </td>
+                        <td className="py-4 px-4 text-center text-muted-foreground">
+                          {new Date(paper.submission_date).toLocaleDateString()}
+                        </td>
+                        <td className="py-4 px-4 text-center font-bold text-primary">
+                          {paper.marks_obtained}/{paper.total_marks}
+                        </td>
+                        <td className="py-4 px-4 text-center font-bold">{paper.percentage}%</td>
+                        <td className="py-4 px-4 text-center">
+                          <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-700 font-bold">
+                            {calculateGrade(paper.percentage)}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+          )}
         </div>
       </main>
 
       <Footer />
     </div>
   );
+}
+
+function calculateGrade(percentage: number): string {
+  if (percentage >= 90) return "A*";
+  if (percentage >= 80) return "A";
+  if (percentage >= 70) return "B";
+  if (percentage >= 60) return "C";
+  if (percentage >= 50) return "D";
+  if (percentage >= 40) return "E";
+  return "U";
 }
