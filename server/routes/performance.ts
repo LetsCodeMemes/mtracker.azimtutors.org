@@ -20,12 +20,12 @@ router.get("/stats", async (req: AuthRequest, res: Response): Promise<void> => {
 
     // Overall score (average across all papers)
     const scoreResult = await pool.query(
-      `SELECT 
-        AVG(CAST(marks_obtained AS FLOAT) / 
-          (SELECT COALESCE(SUM(marks_available), 100) FROM exam_questions WHERE paper_id = user_papers.paper_id)) * 100 as avg_score,
+      `SELECT
+        AVG(CAST(up.marks_obtained AS FLOAT) / p.total_marks) * 100 as avg_score,
         COUNT(*) as paper_count
-      FROM user_papers
-      WHERE user_id = $1`,
+      FROM user_papers up
+      JOIN papers p ON up.paper_id = p.id
+      WHERE up.user_id = $1`,
       [userId]
     );
 
