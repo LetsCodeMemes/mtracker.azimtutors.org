@@ -184,36 +184,9 @@ router.post(
         if (lastDate === yesterdayStr) {
           // Continue streak
           newCurrentStreak = (streak?.current_streak || 0) + 1;
-
-          // Award points for daily sign-in/submission
-          let pointsToAward = 5;
-
-          // Milestone bonuses
-          const milestones: Record<number, number> = {
-            7: 50,
-            14: 100,
-            30: 250,
-            50: 500,
-            100: 1000
-          };
-
-          if (milestones[newCurrentStreak]) {
-            pointsToAward += milestones[newCurrentStreak];
-          }
-
-          await pool.query(
-            `UPDATE user_points SET total_points = total_points + $1, experience = experience + $1 WHERE user_id = $2`,
-            [pointsToAward, req.user.id]
-          );
         } else {
           // Reset to 1
           newCurrentStreak = 1;
-
-          // Award base points for starting a streak
-          await pool.query(
-            `UPDATE user_points SET total_points = total_points + 5, experience = experience + 5 WHERE user_id = $1`,
-            [req.user.id]
-          );
         }
 
         // Update longest streak
@@ -221,7 +194,7 @@ router.post(
       }
 
       const updated = await pool.query(
-        `UPDATE user_streaks 
+        `UPDATE user_streaks
          SET current_streak = $1, longest_streak = $2, last_submission_date = $3, updated_at = CURRENT_TIMESTAMP
          WHERE user_id = $4
          RETURNING *`,
