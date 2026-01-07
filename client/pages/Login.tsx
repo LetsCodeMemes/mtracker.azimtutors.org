@@ -84,6 +84,14 @@ export default function Login() {
                 required
                 disabled={isLoading}
               />
+              <div className="flex justify-end mt-1">
+                <Link
+                  to="/forgot-password"
+                  className="text-xs text-primary hover:underline"
+                >
+                  Forgot password?
+                </Link>
+              </div>
             </div>
 
             <Button className="w-full" disabled={isLoading}>
