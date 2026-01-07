@@ -184,6 +184,13 @@ router.post(
         if (lastDate === yesterdayStr) {
           // Continue streak
           newCurrentStreak = (streak?.current_streak || 0) + 1;
+
+          // Award points for maintaining streak
+          const STREAK_POINTS = 50;
+          await pool.query(
+            `UPDATE user_points SET total_points = total_points + $1, experience = experience + $1 WHERE user_id = $2`,
+            [STREAK_POINTS, req.user.id]
+          );
         } else {
           // Reset to 1
           newCurrentStreak = 1;
