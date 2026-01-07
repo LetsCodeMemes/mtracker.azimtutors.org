@@ -741,6 +741,7 @@ export default function Dashboard() {
       </main>
 
       <Footer />
+      <FeedbackWidget />
     </div>
   );
 }
