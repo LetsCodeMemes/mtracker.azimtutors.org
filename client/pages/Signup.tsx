@@ -44,7 +44,7 @@ export default function Signup() {
 
       if (response.success) {
         setUser(response.user, response.token);
-        navigate("/dashboard");
+        navigate("/onboarding");
       } else {
         setError(response.message || "Sign up failed");
       }
