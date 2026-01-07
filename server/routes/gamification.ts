@@ -75,10 +75,10 @@ router.get(
 
       // Get mistake breakdown by type
       const mistakeBreakdown = await pool.query(
-        `SELECT 
+        `SELECT
           mistake_type,
           COUNT(*) as count,
-          ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM mistake_log WHERE user_id = $1), 1) as percentage
+          ROUND((COUNT(*) * 100.0 / (SELECT COUNT(*) FROM mistake_log WHERE user_id = $1))::NUMERIC, 1) as percentage
          FROM mistake_log
          WHERE user_id = $1
          GROUP BY mistake_type
@@ -88,10 +88,10 @@ router.get(
 
       // Get top problematic topics
       const topicBreakdown = await pool.query(
-        `SELECT 
+        `SELECT
           topic,
           COUNT(*) as mistake_count,
-          ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM mistake_log WHERE user_id = $1), 1) as percentage
+          ROUND((COUNT(*) * 100.0 / (SELECT COUNT(*) FROM mistake_log WHERE user_id = $1))::NUMERIC, 1) as percentage
          FROM mistake_log
          WHERE user_id = $1
          GROUP BY topic
