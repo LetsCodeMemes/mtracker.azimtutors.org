@@ -55,11 +55,11 @@ router.get("/stats", async (req: AuthRequest, res: Response): Promise<void> => {
         eq.sub_topic as question_type,
         COUNT(DISTINCT eq.id) as total_questions,
         COALESCE(SUM(eq.marks_available), 0) as total_marks,
-        COALESCE(SUM(eq.marks_available - qr.marks_obtained), 0) as marks_lost,
+        COALESCE(SUM(eq.marks_available - COALESCE(qr.marks_obtained, 0)), 0) as marks_lost,
         ROUND((COALESCE(SUM(qr.marks_obtained), 0)::FLOAT / NULLIF(SUM(eq.marks_available), 0) * 100)::NUMERIC, 1) as accuracy
       FROM exam_questions eq
-      LEFT JOIN question_responses qr ON eq.id = qr.question_id
-      LEFT JOIN user_papers up ON qr.user_paper_id = up.id AND up.user_id = $1
+      JOIN question_responses qr ON eq.id = qr.question_id
+      JOIN user_papers up ON qr.user_paper_id = up.id AND up.user_id = $1
       WHERE eq.sub_topic IS NOT NULL
       GROUP BY eq.sub_topic
       ORDER BY marks_lost DESC`,
