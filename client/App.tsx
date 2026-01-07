@@ -18,6 +18,7 @@ import ExaminerInsights from "./pages/ExaminerInsights";
 import ProgressReport from "./pages/ProgressReport";
 import Onboarding from "./pages/Onboarding";
 import PracticeQuestions from "./pages/PracticeQuestions";
+import Premium from "./pages/Premium";
 import { Placeholder } from "./pages/Placeholder";
 import NotFound from "./pages/NotFound";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -90,6 +91,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <PracticeQuestions />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/premium"
+            element={
+              <ProtectedRoute>
+                <Premium />
               </ProtectedRoute>
             }
           />
