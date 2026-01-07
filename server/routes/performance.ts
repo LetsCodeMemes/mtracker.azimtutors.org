@@ -154,14 +154,12 @@ router.get("/papers", async (req: AuthRequest, res: Response) => {
         p.year,
         p.paper_number,
         up.marks_obtained,
-        COALESCE(SUM(eq.marks_available), 0) as total_marks,
+        p.total_marks,
         up.submission_date,
-        ROUND((CAST(up.marks_obtained AS FLOAT) / NULLIF(SUM(eq.marks_available), 100) * 100)::NUMERIC, 1) as percentage
+        ROUND((CAST(up.marks_obtained AS FLOAT) / p.total_marks * 100)::NUMERIC, 1) as percentage
       FROM user_papers up
       JOIN papers p ON up.paper_id = p.id
-      LEFT JOIN exam_questions eq ON p.id = eq.paper_id
       WHERE up.user_id = $1
-      GROUP BY up.id, p.exam_board, p.year, p.paper_number, up.marks_obtained, up.submission_date
       ORDER BY up.submission_date DESC`,
       [req.user.id]
     );
