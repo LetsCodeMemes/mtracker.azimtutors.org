@@ -83,7 +83,12 @@ async function seedPapersData(client: any) {
         await client.query(
           `INSERT INTO exam_questions (paper_id, question_number, topic, sub_topic, chapter_id, marks_available)
            VALUES ($1, $2, $3, $4, $5, $6)
-           ON CONFLICT DO NOTHING`,
+           ON CONFLICT (paper_id, question_number)
+           DO UPDATE SET
+             topic = EXCLUDED.topic,
+             sub_topic = EXCLUDED.sub_topic,
+             chapter_id = EXCLUDED.chapter_id,
+             marks_available = EXCLUDED.marks_available`,
           [
             paperId,
             question.questionNumber,
@@ -112,6 +117,7 @@ export async function initializeDatabase() {
         id SERIAL PRIMARY KEY,
         email VARCHAR(255) UNIQUE NOT NULL,
         username VARCHAR(100) UNIQUE,
+        is_leaderboard_public BOOLEAN DEFAULT true,
         password_hash VARCHAR(255) NOT NULL,
         first_name VARCHAR(100),
         last_name VARCHAR(100),
