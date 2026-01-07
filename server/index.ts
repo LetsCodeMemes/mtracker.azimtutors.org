@@ -6,6 +6,7 @@ import { authRouter } from "./routes/auth";
 import { papersRouter } from "./routes/papers";
 import { performanceRouter } from "./routes/performance";
 import { gamificationRouter } from "./routes/gamification";
+import { aiQuestionsRouter } from "./routes/ai-questions";
 import { initializeDatabase } from "./db";
 
 export function createServer() {
