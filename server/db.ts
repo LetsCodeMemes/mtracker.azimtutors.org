@@ -23,16 +23,18 @@ async function seedPapersData(client: any) {
   try {
     // Get unique papers from exam mappings
     const allQuestions = [
-      ...edexcelALevelMaths2024,
-      ...edexcelALevelMaths2023,
-      ...edexcelALevelMaths2023_Full,
-      ...edexcelALevelMaths2022,
-      ...edexcelALevelMaths2021,
-      ...edexcelALevelMaths2020,
-      ...edexcelALevelMaths2019,
-      ...edexcelALevelMaths2018,
-      ...edexcelALevelMaths2018_P2,
+      ...(edexcelALevelMaths2024 || []),
+      ...(edexcelALevelMaths2023 || []),
+      ...(edexcelALevelMaths2023_Full || []),
+      ...(edexcelALevelMaths2022 || []),
+      ...(edexcelALevelMaths2021 || []),
+      ...(edexcelALevelMaths2020 || []),
+      ...(edexcelALevelMaths2019 || []),
+      ...(edexcelALevelMaths2018 || []),
+      ...(edexcelALevelMaths2018_P2 || []),
     ];
+
+    console.log(`🔍 Found ${allQuestions.length} total questions to seed`);
 
     // Collect unique papers
     const uniquePapers = new Map<
