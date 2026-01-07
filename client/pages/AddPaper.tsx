@@ -43,7 +43,7 @@ export default function AddPaper() {
   const [papers, setPapers] = useState<Paper[]>([]);
   const [questions, setQuestions] = useState<ExamQuestion[]>([]);
   const [selectedPaper, setSelectedPaper] = useState<Paper | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
