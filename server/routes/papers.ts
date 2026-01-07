@@ -95,13 +95,37 @@ router.post(
             [userPaperId]
           );
         } else {
+          // Check user's plan limit (only for new submissions)
+          const planResult = await client.query(
+            `SELECT max_papers, papers_submitted FROM user_plans WHERE user_id = $1`,
+            [req.user.id]
+          );
+
+          const plan = planResult.rows[0];
+          if (plan && plan.papers_submitted >= plan.max_papers) {
+            return res.status(403).json({
+              error: "Paper limit reached",
+              message: `You've reached the ${plan.max_papers} paper limit for your plan. Upgrade to Premium for unlimited papers.`,
+              limit: plan.max_papers,
+              submitted: plan.papers_submitted,
+            });
+          }
+
           // Create new submission
           const result = await client.query(
-            `INSERT INTO user_papers (user_id, paper_id) 
+            `INSERT INTO user_papers (user_id, paper_id)
              VALUES ($1, $2) RETURNING id`,
             [req.user.id, paperId]
           );
           userPaperId = result.rows[0].id;
+
+          // Increment papers submitted count
+          if (plan) {
+            await client.query(
+              `UPDATE user_plans SET papers_submitted = papers_submitted + 1 WHERE user_id = $1`,
+              [req.user.id]
+            );
+          }
         }
 
         // Delete old question responses and insert new ones
