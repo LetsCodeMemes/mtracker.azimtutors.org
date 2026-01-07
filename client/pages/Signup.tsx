@@ -108,6 +108,21 @@ export default function Signup() {
             </div>
 
             <div>
+              <Label htmlFor="username">Username</Label>
+              <Input
+                id="username"
+                placeholder="johndoe123"
+                className="mt-2"
+                value={formData.username}
+                onChange={(e) =>
+                  setFormData({ ...formData, username: e.target.value })
+                }
+                required
+                disabled={isLoading}
+              />
+            </div>
+
+            <div>
               <Label htmlFor="email">Email Address</Label>
               <Input
                 id="email"
