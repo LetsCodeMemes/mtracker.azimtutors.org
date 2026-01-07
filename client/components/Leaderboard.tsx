@@ -34,7 +34,7 @@ export function Leaderboard() {
         },
       });
       const data = await response.json();
-      setEntries(data);
+      setEntries(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Failed to fetch leaderboard:", err);
     } finally {
