@@ -144,46 +144,55 @@ export function Header() {
               <>
                 <Link
                   to="/dashboard"
-                  className="text-sm font-medium text-foreground hover:text-primary transition-colors py-2"
+                  className="text-sm font-medium text-foreground hover:text-primary transition-colors py-2 flex items-center gap-2"
                   onClick={() => setMobileMenuOpen(false)}
                 >
+                  <LayoutDashboard className="h-4 w-4" />
                   Dashboard
                 </Link>
-                <Link
-                  to="/add-paper"
-                  className="text-sm font-medium text-foreground hover:text-primary transition-colors py-2"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Add Paper
-                </Link>
-                <Link
-                  to="/simulator"
-                  className="text-sm font-medium text-foreground hover:text-primary transition-colors py-2"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Grade Simulator
-                </Link>
-                <Link
-                  to="/revision-plan"
-                  className="text-sm font-medium text-foreground hover:text-primary transition-colors py-2"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Revision Plan
-                </Link>
-                <Link
-                  to="/practice-questions"
-                  className="text-sm font-medium text-foreground hover:text-primary transition-colors py-2"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Practice Questions
-                </Link>
-                <Link
-                  to="/premium"
-                  className="text-sm font-bold text-primary hover:opacity-80 transition-opacity py-2"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Premium
-                </Link>
+                <div className="py-2 space-y-3">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground px-2">Tools</p>
+                  <Link
+                    to="/add-paper"
+                    className="text-sm font-medium text-foreground hover:text-primary transition-colors py-1 px-2 flex items-center gap-2"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <FilePlus className="h-4 w-4" />
+                    Add Paper
+                  </Link>
+                  <Link
+                    to="/simulator"
+                    className="text-sm font-medium text-foreground hover:text-primary transition-colors py-1 px-2 flex items-center gap-2"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Calculator className="h-4 w-4" />
+                    Grade Simulator
+                  </Link>
+                  <Link
+                    to="/revision-plan"
+                    className="text-sm font-medium text-foreground hover:text-primary transition-colors py-1 px-2 flex items-center gap-2"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Calendar className="h-4 w-4" />
+                    Revision Plan
+                  </Link>
+                  <Link
+                    to="/practice-questions"
+                    className="text-sm font-medium text-foreground hover:text-primary transition-colors py-1 px-2 flex items-center gap-2"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Brain className="h-4 w-4" />
+                    Practice Questions
+                  </Link>
+                  <Link
+                    to="/premium"
+                    className="text-sm font-bold text-primary hover:opacity-80 transition-opacity py-1 px-2 flex items-center gap-2 bg-primary/5 rounded-md"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Sparkles className="h-4 w-4" />
+                    Premium Features
+                  </Link>
+                </div>
               </>
             )}
             <Link
@@ -191,7 +200,7 @@ export function Header() {
               className="text-sm font-medium text-foreground hover:text-primary transition-colors py-2"
               onClick={() => setMobileMenuOpen(false)}
             >
-              Features
+              About
             </Link>
             <div className="border-t border-border pt-3 mt-2 flex flex-col gap-2">
               {user ? (
