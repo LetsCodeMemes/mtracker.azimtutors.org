@@ -10,6 +10,10 @@ import { aiQuestionsRouter } from "./routes/ai-questions";
 import { notificationsRouter } from "./routes/notifications";
 import { initializeDatabase } from "./db";
 
+// Track if database has been initialized (for serverless environments)
+let dbInitialized = false;
+let dbInitializationPromise: Promise<void> | null = null;
+
 export function createServer() {
   const app = express();
 
@@ -18,11 +22,19 @@ export function createServer() {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
-  // Initialize database on startup
-  initializeDatabase().catch((err) => {
-    console.error("Failed to initialize database:", err);
-    process.exit(1);
-  });
+  // Initialize database once (guard for serverless)
+  if (!dbInitialized && !dbInitializationPromise) {
+    dbInitializationPromise = initializeDatabase()
+      .then(() => {
+        dbInitialized = true;
+        console.log("✓ Database initialized successfully");
+      })
+      .catch((err) => {
+        console.error("Failed to initialize database:", err);
+        // Don't call process.exit() in serverless - just log and continue
+        // API routes will handle the database error gracefully
+      });
+  }
 
   // Example API routes
   app.get("/api/ping", (_req, res) => {
