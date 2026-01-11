@@ -1,0 +1,31 @@
+# Fly.io configuration for Azim Tutors
+app = "azim-tutors"
+primary_region = "iad"
+
+[build]
+  dockerfile = "./Dockerfile"
+
+[env]
+  NODE_ENV = "production"
+
+[[services]]
+  internal_port = 3000
+  processes = ["app"]
+  protocol = "tcp"
+  
+  [services.concurrency]
+    hard_limit = 25
+    soft_limit = 20
+  
+  [[services.ports]]
+    handlers = ["http"]
+    port = 80
+  
+  [[services.ports]]
+    handlers = ["tls", "http"]
+    port = 443
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 256
